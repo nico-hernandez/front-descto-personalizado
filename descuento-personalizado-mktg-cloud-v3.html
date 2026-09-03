@@ -11,7 +11,7 @@
 
     IF @rowCount > 0 THEN
       SET @row = Row(@rows, 1)
-      SET @discountCode = Field(@row, "CodigoDescuento")
+      SET @discountCode = Field(@row, "cupon")
       SET @found = true
 
     ENDIF
@@ -226,7 +226,7 @@
 
     <span class="tag">Exclusivo Club</span>
     <h1>Descubre si tienes un descuento personalizado</h1>
-    <p class="sub">Ingresa tus datos y descubre si hay un beneficio especial esperando por ti</p>
+    <p class="sub">Ingresa tus datos y descubre si hay un beneficio especial esperando por ti.</p>
 
     %%[ IF NOT EMPTY(@rut) AND NOT @found THEN ]%%
       <p class="sub" style="color:#b03a2e; margin-top:-18px;">No encontramos un descuento asociado a ese RUT, pero puedes intentar de nuevo.</p>
@@ -257,7 +257,7 @@
     <div class="result">
       <div class="icon">🎉</div>
       <h2>¡Tienes un descuento!</h2>
-      <p>Usa este código en tu próxima compra</p>
+      <p>Usa este código en tu actual compra</p>
       <div class="code-box">%%=v(@discountCode)=%%</div>
       <form method="get" action="%%=RequestParameter('PAGEURL')=%%">
         <button type="submit">Consultar otro RUT</button>
