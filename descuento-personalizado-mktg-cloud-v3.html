@@ -8,6 +8,7 @@
     /* Consulta a la Data Extension del Club de Descuentos */
     SET @rows = LookupRows("CuponesPilotoJacobo", "rut_dv_cliente", @rut, "telefono", @telefono)
     SET @rowCount = RowCount(@rows)
+    SET @found = false
 
     IF @rowCount > 0 THEN
       SET @row = Row(@rows, 1)
