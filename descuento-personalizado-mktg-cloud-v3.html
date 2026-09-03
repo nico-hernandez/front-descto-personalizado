@@ -1,14 +1,12 @@
 %%[
-  VAR @rut, @numeroTelefono, @telefonoCompleto, @discountCode, @found, @rows, @rowCount, @row
 
   SET @rut = RequestParameter("rut")
   SET @numeroTelefono = RequestParameter("telefono")
 
   IF NOT EMPTY(@rut) THEN
-    SET @telefonoCompleto = CONCAT("+56 9 ", @numeroTelefono)
 
     /* Consulta a la Data Extension del Club de Descuentos */
-    SET @rows = LookupRows("DE_Club_Descuentos", "RUT", @rut)
+    SET @rows = LookupRows("CuponesPilotoJacobo", "rut_cliente", @rut)
     SET @rowCount = RowCount(@rows)
 
     IF @rowCount > 0 THEN
@@ -16,11 +14,6 @@
       SET @discountCode = Field(@row, "CodigoDescuento")
       SET @found = true
 
-      /* Registra o actualiza el teléfono asociado a ese RUT */
-      UpsertData("DE_Club_Descuentos", 1, "RUT", @rut, "Telefono", @telefonoCompleto)
-    ELSE
-      SET @discountCode = "SINDESCUENTO"
-      SET @found = false
     ENDIF
   ENDIF
 ]%%
@@ -29,7 +22,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Descuento personalizado</title>
+<title>Descuento W</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap');
 
