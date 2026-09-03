@@ -5,18 +5,17 @@
 
   IF NOT EMPTY(@rut) THEN
 
-  /* Consulta a la Data Extension del Club de Descuentos */
-  SET @rows = LookupRows("CuponesPilotoJacobo", "rut_dv_cliente", @rut, "telefono", @telefono)
-  SET @rowCount = RowCount(@rows)
+    /* Consulta a la Data Extension del Club de Descuentos */
+    SET @rows = LookupRows("CuponesPilotoJacobo", "rut_dv_cliente", @rut, "telefono", @telefono)
+    SET @rowCount = RowCount(@rows)
 
-  IF @rowCount > 0 THEN
-  SET @row = Row(@rows, 1)
-  SET @discountCode = Field(@row, "cupon")
-  SET @category = Field(@row, "categoria")
-  SET @name = Field(@row, "nombre")
-  SET @found = true
-
-  ENDIF
+    IF @rowCount > 0 THEN
+      SET @row = Row(@rows, 1)
+      SET @discountCode = Field(@row, "cupon")
+      SET @category = Field(@row, "categoria")
+      SET @name = Field(@row, "nombre")
+      SET @found = true
+    ENDIF
   ENDIF
 ]%%
 <!DOCTYPE html>
@@ -236,10 +235,6 @@
     <h1>Descubre si tienes un descuento personalizado</h1>
     <p class="sub">Ingresa tus datos y descubre si hay un beneficio especial esperando por ti.</p>
 
-    %%[ IF NOT EMPTY(@rut) AND NOT @found THEN ]%%
-    <p class="sub" style="color:#b03a2e; margin-top:-18px;">Verifica tu RUT y tu celular.</p>
-    %%[ ENDIF ]%%
-
     <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
       <div class="field">
         <label for="rut">RUT</label>
@@ -260,17 +255,13 @@
 
     <p class="fine">Tus datos se usan solo para validar tu identidad y entregar el descuento.</p>
 
-    %%[ ELSE ]%%
+    %%[ ELSEIF NOT EMPTY(@rut) AND NOT @found THEN ]%%
 
     <span class="tag">Exclusivo Club</span>
     <div class="result">
-      <div class="icon">🎉</div>
-      <h2>¡%%=v(@name)=%%, tienes un descuento!</h2>
-      <h2>Usálo en %%=v(@category)=%%</h2>
-      <p>Dicta este código en caja y obtén el descuento en tu compra actual.</p>
-      <div class="code-box">%%=v(@discountCode)=%%</div>
-      <p>Cupón válido hasta 6 de septiembre 2026, válido para una sola transacción, no acumulable con otras promociones.
-      </p>
+      <div class="icon">😞</div>
+      <h2>¡%%=v(@name)=%% Aun no tienes descuentos personalizados.</h2>
+      <p>No te preocupes, sigue intentándolo en una próxima visita a nuestros locales</p>
       <form method="get" action="%%=RequestParameter('PAGEURL')=%%">
         <button type="submit">Consultar otro RUT</button>
       </form>
