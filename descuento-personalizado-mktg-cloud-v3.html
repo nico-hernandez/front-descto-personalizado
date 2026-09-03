@@ -6,7 +6,7 @@
   IF NOT EMPTY(@rut) THEN
 
   /* Consulta a la Data Extension del Club de Descuentos */
-  SET @rows = LookupRows("CuponesPilotoJacobo", "rut_cliente", @rut, "telefono", @telefono)
+  SET @rows = LookupRows("CuponesPilotoJacobo", "rut_dv_cliente", @rut, "telefono", @telefono)
   SET @rowCount = RowCount(@rows)
 
   IF @rowCount > 0 THEN
@@ -281,8 +281,6 @@
   <script>
     // 1. Live RUT Masking Function
     function formatRUT(input) {
-      // Hide error message when user starts typing again
-      // document.getElementById('rutError').style.display = 'none';
 
       // Clean input: allow only numbers and k/K
       let value = input.value.replace(/[^0-9kK]/g, '').toUpperCase();
