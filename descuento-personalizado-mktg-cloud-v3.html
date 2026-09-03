@@ -12,6 +12,7 @@
     IF @rowCount > 0 THEN
       SET @row = Row(@rows, 1)
       SET @discountCode = Field(@row, "cupon")
+      SET @category = Field(@row, "categoria")
       SET @found = true
 
     ENDIF
@@ -256,8 +257,8 @@
     <span class="tag">Exclusivo Club</span>
     <div class="result">
       <div class="icon">🎉</div>
-      <h2>¡Tienes un descuento!</h2>
-      <p>Usa este código en tu actual compra</p>
+      <h2>¡Tienes un descuento, usálo en %%=v(@category)=%%!</h2>
+      <p>Usa este código en tu compra actual</p>
       <div class="code-box">%%=v(@discountCode)=%%</div>
       <form method="get" action="%%=RequestParameter('PAGEURL')=%%">
         <button type="submit">Consultar otro RUT</button>
