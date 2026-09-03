@@ -235,10 +235,6 @@
     <h1>Descubre si tienes un descuento personalizado</h1>
     <p class="sub">Ingresa tus datos y descubre si hay un beneficio especial esperando por ti.</p>
 
-    %%[ IF NOT EMPTY(@rut) AND NOT @found THEN ]%%
-    <p class="sub" style="color:#b03a2e; margin-top:-18px;"></p>
-    %%[ ENDIF ]%%
-
     <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
       <div class="field">
         <label for="rut">RUT</label>
