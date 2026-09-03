@@ -13,6 +13,7 @@
   SET @row = Row(@rows, 1)
   SET @discountCode = Field(@row, "cupon")
   SET @category = Field(@row, "categoria")
+  SET @name = Field(@row, "nombre")
   SET @found = true
 
   ENDIF
@@ -264,6 +265,7 @@
     <span class="tag">Exclusivo Club</span>
     <div class="result">
       <div class="icon">🎉</div>
+      <h2>%%=v(@name)=%%!</h2>
       <h2>¡Tienes un descuento, usálo en %%=v(@category)=%%!</h2>
       <p>Dicta este código en caja y obtén el descuento en tu compra actual.</p>
       <div class="code-box">%%=v(@discountCode)=%%</div>
