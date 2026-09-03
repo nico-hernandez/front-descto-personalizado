@@ -1,12 +1,12 @@
 %%[
 
   SET @rut = RequestParameter("rut")
-  SET @numeroTelefono = RequestParameter("telefono")
+  SET @telefono = RequestParameter("telefono")
 
   IF NOT EMPTY(@rut) THEN
 
     /* Consulta a la Data Extension del Club de Descuentos */
-    SET @rows = LookupRows("CuponesPilotoJacobo", "rut_cliente", @rut)
+    SET @rows = LookupRows("CuponesPilotoJacobo", "rut_cliente", @rut, "telefono", @telefono)
     SET @rowCount = RowCount(@rows)
 
     IF @rowCount > 0 THEN
