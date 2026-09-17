@@ -405,11 +405,11 @@
     if (!validarRut(valor)) {
       errorSpan.style.display = 'block';
       if (submitBtn) submitBtn.disabled = true;
-      if (submitBtn) submitBtn.style.backgroundColor = "black";
+      if (submitBtn) submitBtn.style.backgroundColor = "#e6f0f1";
     } else {
       errorSpan.style.display = 'none';
       if (submitBtn) submitBtn.disabled = false;
-      if (submitBtn) submitBtn.style.backgroundColor = "#e6f0f1";
+      if (submitBtn) submitBtn.style.backgroundColor = "var(--green)";
     }
   }
 </script>
