@@ -405,9 +405,11 @@
     if (!validarRut(valor)) {
       errorSpan.style.display = 'block';
       if (submitBtn) submitBtn.disabled = true;
+      if (submitBtn) submitBtn.style.backgroundColor = "black";
     } else {
       errorSpan.style.display = 'none';
       if (submitBtn) submitBtn.disabled = false;
+      if (submitBtn) submitBtn.style.backgroundColor = "var(--green)";
     }
   }
 </script>
