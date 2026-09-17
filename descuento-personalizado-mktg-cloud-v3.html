@@ -1,22 +1,40 @@
 %%[
-  /*e.g. https://cloud.mailclubcruzverde.cl/descto-personalizado?store=1287*/
+  /*e.g. https://cloud.mailclubcruzverde.cl/descto-personalizado?token=9a2a9cba-7244-4ff1-b180-a7aead818fe0*/
 
+  /* Variables generales: Data Extensions */
+
+  SET @DE_CUPONES = "CuponesPilotoQR"
+  SET @DE_TOKEN_STORE = "TokenLocal"
+
+  /*Extraer parametros del formulario y URL*/
+  
   SET @rut = RequestParameter("rut")
-  SET @store = RequestParameter("store")
+  SET @token = RequestParameter("token")
 
-  IF NOT EMPTY(@rut) THEN
+  IF NOT EMPTY(@rut) AND NOT EMPTY(@token) THEN
+    
+  /* Validar que proviene de local piloto */
+    SET @rows = LookupRows(@DE_TOKEN_STORE, "token", @token)
+    SET @rowCount = RowCount(@rows)
+    SET @storeFound = false
+
+    IF @rowCount > 0 THEN
+      SET @row = Row(@rows, 1)
+      SET @store = Field(@row, "store")
+      SET @storeFound = true
+    ENDIF
 
     /* Consulta a la Data Extension del Club de Descuentos */
-    SET @rows = LookupRows("CuponesPilotoJacobo", "rut_dv_cliente", @rut)
+    SET @rows = LookupRows(@DE_CUPONES, "rut_dv_cliente", @rut)
     SET @rowCount = RowCount(@rows)
-    SET @found = false
+    SET @rutFound = false
 
     IF @rowCount > 0 THEN
       SET @row = Row(@rows, 1)
       SET @discountCode = Field(@row, "cupon")
       SET @category = Field(@row, "categoria")
       SET @name = Field(@row, "nombre")
-      SET @found = true
+      SET @rutFound = true
     ENDIF
   ENDIF
 ]%%
@@ -255,9 +273,9 @@
       <button type="submit" id="submitBtn">Probar suerte</button>
     </form>
 
-    <p class="fine">Tus datos se usan solo para validar tu identidad y entregar el descuento. Local %%=v(@store)=%%</p>
+    <p class="fine">Tus datos se usan solo para validar tu identidad y entregar el descuento. Local %%=v(@store)=%%.</p>
 
-    %%[ ELSEIF NOT EMPTY(@rut) AND @found THEN ]%%
+    %%[ ELSEIF NOT EMPTY(@rut) AND @rutFound THEN ]%%
 
     <span class="tag">Exclusivo Club</span>
     <div class="result">
