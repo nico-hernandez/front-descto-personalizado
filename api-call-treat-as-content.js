@@ -1,7 +1,7 @@
 <script runat="server">
   Platform.Load("Core", "1.1.1");
 
-  var url = "https://api.github.com/repos/nico-hernandez/front-descto-personalizado/contents/descuento-personalizado-v2.html";
+  var url = "https://api.github.com/repos/nico-hernandez/front-descto-personalizado/contents/descuento-personalizado-mktg-cloud-v3.html";
 
   var req = new Script.Util.HttpRequest(url);
   req.method = "GET";
