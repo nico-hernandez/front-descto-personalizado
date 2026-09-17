@@ -11,30 +11,33 @@
   SET @rut = RequestParameter("rut")
   SET @token = RequestParameter("token")
 
-  IF NOT EMPTY(@rut) AND NOT EMPTY(@token) THEN
-    
-  /* Validar que proviene de local piloto */
+   /* Validar que proviene de local piloto */
+  SET @storeFound = false
+
+  IF NOT EMPTY(@token) THEN
     SET @rows = LookupRows(@DE_TOKEN_STORE, "token", @token)
     SET @rowCount = RowCount(@rows)
-    SET @storeFound = false
 
     IF @rowCount > 0 THEN
       SET @row = Row(@rows, 1)
       SET @store = Field(@row, "store")
       SET @storeFound = true
     ENDIF
+  ENDIF
 
-    /* Consulta a la Data Extension del Club de Descuentos */
+  /* Consulta a la Data Extension del Club de Descuentos */
+  SET @couponFound = false
+
+  IF NOT EMPTY(@rut) THEN
     SET @rows = LookupRows(@DE_CUPONES, "rut_dv_cliente", @rut)
     SET @rowCount = RowCount(@rows)
-    SET @rutFound = false
 
     IF @rowCount > 0 THEN
       SET @row = Row(@rows, 1)
       SET @discountCode = Field(@row, "cupon")
       SET @category = Field(@row, "categoria")
       SET @name = Field(@row, "nombre")
-      SET @rutFound = true
+      SET @couponFound = true
     ENDIF
   ENDIF
 ]%%
@@ -258,7 +261,8 @@
 
   <div class="card">
 
-    %%[ IF EMPTY(@rut) THEN ]%%
+    <!-- Consulta desde local valido y aun no ingresa RUT -->
+    %%[ IF @storeFound AND EMPTY(@rut) AND NOT @couponFound THEN ]%%
 
     <span class="tag">Exclusivo Club</span>
     <h1>Descubre si tienes un descuento exclusivo para ti.</h1>
@@ -275,7 +279,8 @@
 
     <p class="fine">Tus datos se usan solo para validar tu identidad y entregar el descuento. Local %%=v(@store)=%%.</p>
 
-    %%[ ELSEIF NOT EMPTY(@rut) AND @rutFound THEN ]%%
+    <!-- Consulta desde local valido, RUT ingresado y con cupon disponible -->
+    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @couponFound THEN ]%%
 
     <span class="tag">Exclusivo Club</span>
     <div class="result">
@@ -292,11 +297,24 @@
       </form>
     </div>
 
-     %%[ ELSE ]%%
+     <!-- Consulta desde local valido, RUT ingresado y sin cupon disponible -->
+     %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND NOT @couponFound THEN ]%%
       <span class="tag">Exclusivo Club</span>
       <div class="result">
         <div class="icon">😞</div>
         <h2>Aún no tienes un descuento personalizado.</h2>
+        <p>Vuelve a intentarlo en un próxima visita a nuestros locales.</p>
+        <form method="get" action="%%=RequestParameter('PAGEURL')=%%">
+          <button type="submit">Consultar otro RUT</button>
+        </form>
+      </div>
+
+      <!-- Consulta desde local no valido -->
+      %%[ ELSE NOT @storeFound ]%%
+      <span class="tag">Exclusivo Club</span>
+      <div class="result">
+        <div class="icon">😞</div>
+        <h2>Este local aun no está participando de descuentos personalizados</h2>
         <p>Vuelve a intentarlo en un próxima visita a nuestros locales.</p>
         <form method="get" action="%%=RequestParameter('PAGEURL')=%%">
           <button type="submit">Consultar otro RUT</button>
