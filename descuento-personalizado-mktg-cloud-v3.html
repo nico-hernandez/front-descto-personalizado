@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html lang="es">
+  
 %%[
   /*e.g. https://cloud.mailclubcruzverde.cl/descto-personalizado?token=9a2a9cba-7244-4ff1-b180-a7aead818fe0*/
 
@@ -139,9 +142,6 @@
     ENDIF
   ENDIF
 ]%%
-
-<!DOCTYPE html>
-<html lang="es">
 
 <head>
   <meta charset="UTF-8">
@@ -396,7 +396,7 @@
     <p class="fine">Tus datos se usan solo para validar tu identidad y entregar el descuento. Local %%=v(@store)=%%.</p>
 
     <!-- Consulta desde local valido, RUT ingresado, captcha OK, con cupon disponible y no excede impressions -->
-    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND @couponFound THEN ]%%
+    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND @couponFound AND @impressions < @MAX_IMPRESSIONS THEN ]%%
 
     <span class="tag">Exclusivo Club</span>
     <div class="result">
@@ -414,7 +414,7 @@
     </div>
 
     <!-- Consulta desde local valido, RUT ingresado, captcha OK, con cupon disponible pero excede impressions -->
-    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND NOT @couponFound THEN ]%%
+    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND NOT @couponFound AND @impressions >= @MAX_IMPRESSIONS THEN ]%%
     <span class="tag">Exclusivo Club</span>
     <div class="result">
       <div class="icon">😞</div>
