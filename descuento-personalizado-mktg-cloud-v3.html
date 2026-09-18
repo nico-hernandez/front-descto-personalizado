@@ -8,6 +8,7 @@
   SET @DE_CUPONES = "CuponesPilotoZonaOriente"
   SET @DE_TOKEN_STORE = "TokenLocal"
   SET @DE_PARAMS = "ParametrosLanding"
+  SET @DE_LOG = "RequestsLog"
 
   /* ==================================================== */
   /* 2. Parametros SiteKey, SecretKey MaxImpressions         */
@@ -105,8 +106,13 @@
   /* 5. Registrar en en Log de Requests                   */
   /* ==================================================== */
   SET @requestId = GUID()
-  SET @requestDate = Format(Now(),"yyyy-MM-dd hh:mm:ss")
-
+  SET @requestDate = Format(DateAdd(Now(), 3, "H"),"yyyy-MM-dd hh:mm:ss") /*CST a GTM-4*/
+  InsertData(@DE_LOG, 
+            "requestId", @requestId, 
+            "rutDvCliente", @rut,
+            "fechaConsulta", @requestDate
+            "localConsulta", @store
+            )
 ]%%
 
 %%[
