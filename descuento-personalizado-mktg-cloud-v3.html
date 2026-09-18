@@ -59,7 +59,7 @@
         if (response.statusCode == 200) {
             
             var responseString = String(response.content);
-            Write('<script>console.log("' + Stringify(response.content)  + '")</script>'); 
+            Write('<script>console.log(' + responseString + ')</script>'); 
 
             if (responseString && responseString !== "") {
                 var jsonObj = Platform.Function.ParseJSON(responseString);
