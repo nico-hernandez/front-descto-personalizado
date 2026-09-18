@@ -29,18 +29,40 @@
 
     IF NOT EMPTY(@turnstileToken) THEN
 
-      SET @requestBody = "secret=" + @SECRET_KEY + "&response=" + @turnstileToken
-
-      /* HTTPPost2 no requiere headers adicionales para este caso */
-      SET @requestHeaderNames = ""
-      SET @requestHeaderValues = ""
-
-      SET @responseStatusCode = ""
-      SET @responseReasonPhrase = ""
-      SET @responseHeaderNames = ""
-      SET @responseHeaderValues = ""
+      SET @requestBody = CONCAT("secret=", @SECRET_KEY, "&response=", @turnstileToken)
+      SET @responseStatusCode = 0
       SET @responseBody = ""
 
+      SET @httpCode = HTTPPost2(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        "application/x-www-form-urlencoded",
+        @requestBody,
+        true,                 /* continueOnError: evita que la página muera si falla la API */
+        @responseStatusCode,  /* Captura el código de estado (ej: 200) */
+        @responseBody         /* Captura la respuesta JSON de Cloudflare */
+      )
+
+
+      IF @responseStatusCode == 200 THEN
+        SET @jsonObj = BuildRowsetFromJSON(@responseBody, "$.success", false)
+        
+        IF RowCount(@jsonObj) > 0 THEN
+          SET @row = Row(@jsonObj, 1)
+          SET @successVal = Field(@row, "value")
+          
+          IF @successVal == "true" OR @successVal == true THEN
+            SET @turnstileValid = true
+          ELSE
+            SET @captchaError = true
+          ENDIF
+        ELSE
+          SET @captchaError = true
+        ENDIF
+        
+      ELSE
+        /* La API de Cloudflare respondió con un error de red (ej: 400, 500) */
+        SET @captchaError = true
+      ENDIF
 
     ELSE
       /* Se envió el formulario sin token de Turnstile (posible bypass/bot) */
