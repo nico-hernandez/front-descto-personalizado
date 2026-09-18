@@ -15,10 +15,10 @@
   /* Consultar Site Key y Secret Key de Turnstile Captcha */
   /* ==================================================== */
 
-  /*SET @rows = LookupRows(@DE_PARAMS)*/
-  /*SET @row = Row(@rows, 1)*/
-  /*SET @PUBLIC_SITE_KEY_2 = Field(@row, "publicSiteKey")*/
-  /*SET @SECRET_KEY_2 = Field(@row, "privateSecretKey")*/
+  SET @rows = LookupRows(@DE_PARAMS, "comment", "Cloudflare Turnstile Captcha")
+  SET @row = Row(@rows, 1)
+  SET @PUBLIC_SITE_KEY_2 = Field(@row, "publicSiteKey")
+  SET @SECRET_KEY_2 = Field(@row, "privateSecretKey")
 
   /* ==================================================== */
   /* Extraer parametros del formulario y desde la URL     */
