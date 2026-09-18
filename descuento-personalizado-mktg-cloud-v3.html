@@ -554,7 +554,7 @@
 
 <script type="text/javascript">
   // Usamos la función de SSJS directamente dentro del HTML para imprimir el valor
-  console.log("Variable SSJS:", <script runat="server">Platform.Response.Write(Platform.Function.Stringify(jsonObj));</script>);
+  console.log("Variable SSJS:", <script runat="server">Platform.Response.Write(Platform.Function.Stringify(response.statusCode));</script>);
 </script>
 
 </html>
