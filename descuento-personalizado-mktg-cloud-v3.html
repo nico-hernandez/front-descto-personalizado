@@ -53,6 +53,7 @@
         request.continueOnError = true; 
 
         var response = request.send();
+        Write('<script>console.log("' + Stringify(response.statusCode) + '")</script>');  
 
         if (response.statusCode == 200) {
             
@@ -86,8 +87,6 @@
 
   Variable.SetValue("@turnstileValid", turnstileValid);
   Variable.SetValue("@captchaError", captchaError);
-  Write('<script>console.log("' + Stringify(response.statusCode) + '")</script>');  
-
 </script>
 
 
