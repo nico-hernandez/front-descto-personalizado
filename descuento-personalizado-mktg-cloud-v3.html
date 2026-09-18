@@ -109,8 +109,8 @@
   SET @requestDate = Format(DateAdd(Now(), 3, "H"),"yyyy-MM-dd hh:mm:ss") /*CST a GTM-4*/
   InsertData(@DE_LOG, 
             "requestId", @requestId, 
-            "rutDvCliente", @rut,
-            "fechaConsulta", @requestDate
+            "rutDvCliente", @rut, 
+            "fechaConsulta", @requestDate,
             "localConsulta", @store
             )
 ]%%
