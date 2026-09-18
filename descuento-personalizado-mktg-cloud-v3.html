@@ -33,7 +33,51 @@
     var turnstileValid = false;
     var captchaError = false;
 
-    
+    if (rut && rut !== "") {
+      if (turnstileToken && turnstileToken !== "") {
+          
+        var url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+        var contentType = "application/json"; 
+        var jsonPayload = {
+            secret: secretKey,
+            response: turnstileToken
+        };
+        var payload = Platform.Function.Stringify(jsonPayload); 
+        var headerNames = [];
+        var headerValues = [];
+        var responseContentArray = []; 
+
+        try {
+          var statusCode = Platform.Function.HTTPPost(
+              url, 
+              contentType, 
+              payload, 
+              headerNames, 
+              headerValues, 
+              responseContentArray
+          );
+
+          if (statusCode == 200) {
+              var rawJson = responseContentArray[0];
+              var jsonObj = Platform.Function.ParseJSON(rawJson);
+
+              if (jsonObj && (jsonObj.success === true || jsonObj.success === "true")) {
+                  turnstileValid = true;
+              } else {
+                  captchaError = true; 
+              }
+          } else {
+              captchaError = true; 
+          }
+
+        } catch (e) {
+            captchaError = true; 
+        }
+
+      } else {
+          captchaError = true; 
+      }
+    }
 
     Variable.SetValue("@turnstileValid", turnstileValid);
     Variable.SetValue("@captchaError", captchaError);
