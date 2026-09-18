@@ -149,7 +149,7 @@
   /* ==================================================== */
   IF NOT EMPTY(@rut) AND NOT EMPTY(@token) THEN
     SET @requestId = GUID()
-    SET @requestDate = Format(DateAdd(Now(), 3, "H"),"yyyy-MM-dd hh:mm:ss") /*CST a GTM-4*/
+    SET @requestDate = Format(DateAdd(Now(), 3, "H"),"yyyy-MM-dd HH:mm:ss") /*CST a GTM-4*/
     InsertData(@DE_LOG, 
               "requestId", @requestId, 
               "rutDvCliente", @rut, 
