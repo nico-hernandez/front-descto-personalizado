@@ -103,21 +103,7 @@
 
 %%[
   /* ==================================================== */
-  /* 5. Registrar en en Log de Requests                   */
-  /* ==================================================== */
-  SET @requestId = GUID()
-  SET @requestDate = Format(DateAdd(Now(), 3, "H"),"yyyy-MM-dd hh:mm:ss") /*CST a GTM-4*/
-  InsertData(@DE_LOG, 
-            "requestId", @requestId, 
-            "rutDvCliente", @rut, 
-            "fechaConsulta", @requestDate,
-            "localConsulta", @store
-            )
-]%%
-
-%%[
-  /* ==================================================== */
-  /* 6. Validaciones para desplegar el cupon al cliente   */
+  /* 5. Validaciones para desplegar el cupon al cliente   */
   /* ==================================================== */
 
   /* Validar que proviene de local piloto */
@@ -155,6 +141,20 @@
 
     ENDIF
   ENDIF
+]%%
+
+%%[
+  /* ==================================================== */
+  /* 6. Registrar en en Log de Requests                   */
+  /* ==================================================== */
+  SET @requestId = GUID()
+  SET @requestDate = Format(DateAdd(Now(), 3, "H"),"yyyy-MM-dd hh:mm:ss") /*CST a GTM-4*/
+  InsertData(@DE_LOG, 
+            "requestId", @requestId, 
+            "rutDvCliente", @rut, 
+            "fechaConsulta", @requestDate,
+            "localConsulta", @store
+            )
 ]%%
 
 <!DOCTYPE html>
