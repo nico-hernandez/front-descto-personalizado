@@ -22,58 +22,10 @@
   /* Validacion Server Side con SiteVerify de Cloudflare  */
   /* ==================================================== */
 
-    SET @turnstileValid = false
+  SET @turnstileValid = false
   SET @captchaError = false
 
-  IF NOT EMPTY(@rut) THEN
-
-    IF NOT EMPTY(@turnstileToken) THEN
-
-      SET @requestBody = "secret=" + @SECRET_KEY + "&response=" + @turnstileToken
-
-      /* HTTPPost2 no requiere headers adicionales para este caso */
-      SET @requestHeaderNames = ""
-      SET @requestHeaderValues = ""
-
-      SET @responseStatusCode = ""
-      SET @responseReasonPhrase = ""
-      SET @responseHeaderNames = ""
-      SET @responseHeaderValues = ""
-      SET @responseBody = ""
-
-      SET @statusCode = HTTPPost2(
-        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-        "application/x-www-form-urlencoded",
-        @requestBody,
-        @requestHeaderNames,
-        @requestHeaderValues,
-        @responseStatusCode,
-        @responseReasonPhrase,
-        @responseHeaderNames,
-        @responseHeaderValues,
-        @responseBody
-      )
-
-      IF @responseStatusCode == "200" THEN
-        /* Parseamos el JSON de respuesta con las funciones nativas de AMPscript */
-        SET @jsonObj = ParseJSON(@responseBody)
-        SET @successVal = Field(@jsonObj, "success")
-
-        IF @successVal == "true" OR @successVal == true THEN
-          SET @turnstileValid = true
-        ELSE
-          SET @captchaError = true
-        ENDIF
-      ELSE
-        SET @captchaError = true
-      ENDIF
-
-    ELSE
-      /* Se envió el formulario sin token de Turnstile (posible bypass/bot) */
-      SET @captchaError = true
-    ENDIF
-
-  ENDIF
+  
 
    /* Validar que proviene de local piloto */
   SET @storeFound = false
