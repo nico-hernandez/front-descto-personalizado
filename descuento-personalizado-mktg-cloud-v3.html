@@ -54,10 +54,12 @@
 
         var response = request.send();
         Write('<script>console.log("' + Stringify(response.statusCode) + '")</script>');  
+         
 
         if (response.statusCode == 200) {
             
             var responseString = String(response.content);
+            Write('<script>console.log("' + responseString + '")</script>'); 
 
             if (responseString && responseString !== "") {
                 var jsonObj = Platform.Function.ParseJSON(responseString);
