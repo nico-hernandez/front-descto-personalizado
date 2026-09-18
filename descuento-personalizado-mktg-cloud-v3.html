@@ -25,7 +25,29 @@
   SET @turnstileValid = false
   SET @captchaError = false
 
-  
+  IF NOT EMPTY(@rut) THEN
+
+    IF NOT EMPTY(@turnstileToken) THEN
+
+      SET @requestBody = "secret=" + @SECRET_KEY + "&response=" + @turnstileToken
+
+      /* HTTPPost2 no requiere headers adicionales para este caso */
+      SET @requestHeaderNames = ""
+      SET @requestHeaderValues = ""
+
+      SET @responseStatusCode = ""
+      SET @responseReasonPhrase = ""
+      SET @responseHeaderNames = ""
+      SET @responseHeaderValues = ""
+      SET @responseBody = ""
+
+
+    ELSE
+      /* Se envió el formulario sin token de Turnstile (posible bypass/bot) */
+      SET @captchaError = true
+    ENDIF
+
+  ENDIF
 
    /* Validar que proviene de local piloto */
   SET @storeFound = false
