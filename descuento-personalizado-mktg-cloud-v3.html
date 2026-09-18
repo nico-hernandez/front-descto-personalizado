@@ -429,7 +429,7 @@
       <div class="conditions">Cupón válido hasta 6 de septiembre 2026, válido para una sola transacción, no acumulable con otras promociones. Tope de $50.000 de descuento. Excluye packs.
       </div>
       <br>
-      <form method="get" action="%%=RequestParameter('PAGEURL')=%%">
+      <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
         <button type="submit">Consultar otro RUT</button>
       </form>
     </div>
@@ -441,7 +441,7 @@
       <div class="icon">😞</div>
       <h2>Te hemos entregado previamente tu cupón</h2>
       <p>Nuevos cupones se activarán pronto, vuelve a intentarlo en un próxima visita a nuestros locales.</p>
-      <form method="get" action="%%=RequestParameter('PAGEURL')=%%">
+      <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
         <button type="submit">Consultar otro RUT</button>
       </form>
     </div>
@@ -454,7 +454,7 @@
       <div class="icon">⚠️</div>
       <h2>No pudimos validar tu verificación de seguridad</h2>
       <p>Por favor, inténtalo nuevamente.</p>
-      <form method="get" action="%%=RequestParameter('PAGEURL')=%%">
+      <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
         <button type="submit">Reintentar</button>
       </form>
     </div>
@@ -466,7 +466,7 @@
         <div class="icon">😞</div>
         <h2>Aún no tienes un descuento personalizado.</h2>
         <p>Vuelve a intentarlo en un próxima visita a nuestros locales.</p>
-        <form method="get" action="%%=RequestParameter('PAGEURL')=%%">
+        <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
           <button type="submit">Consultar otro RUT</button>
         </form>
       </div>
