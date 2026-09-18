@@ -21,68 +21,74 @@
 ]%%
 
 
-  <script runat="server">
+<script runat="server">
   /* ==================================================== */
   /* Validacion Server Side con SiteVerify de Cloudflare  */
   /* ==================================================== */
-    Platform.Load("Core", "1.1.1");
-    var rut = Variable.GetValue("@rut");
-    var turnstileToken = Variable.GetValue("@turnstileToken");
-    var secretKey = Variable.GetValue("@SECRET_KEY");
+  Platform.Load("Core", "1.1.1");
+  var rut = Variable.GetValue("@rut");
+  var turnstileToken = Variable.GetValue("@turnstileToken");
+  var secretKey = Variable.GetValue("@SECRET_KEY");
+  var turnstileValid = false;
+  var captchaError = false;
 
-    var turnstileValid = false;
-    var captchaError = false;
+  if (rut && rut !== "") {
+    if (turnstileToken && turnstileToken !== "") {
+        
+      var url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+      var contentType = "application/json"; 
+      var jsonPayload = {
+          secret: secretKey,
+          response: turnstileToken
+      };
+      var payload = Platform.Function.Stringify(jsonPayload); 
 
-    if (rut && rut !== "") {
-      if (turnstileToken && turnstileToken !== "") {
-          
-        var url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-        var contentType = "application/json"; 
-        var jsonPayload = {
-            secret: secretKey,
-            response: turnstileToken
-        };
-        var payload = Platform.Function.Stringify(jsonPayload); 
-        var headerNames = [];
-        var headerValues = [];
-        var responseContentArray = []; 
+      try {
+        var request = new Script.Util.HttpRequest(url);
+        
+        request.method = "POST";
+        request.contentType = contentType;
+        request.encoding = "UTF-8";
+        request.postData = payload;
+        request.continueOnError = true; 
 
-        try {
-          var statusCode = Platform.Function.HTTPPost(
-              url, 
-              contentType, 
-              payload, 
-              headerNames, 
-              headerValues, 
-              responseContentArray
-          );
+        var response = request.send();
 
-          if (statusCode == 200) {
-              var rawJson = responseContentArray[0];
-              var jsonObj = Platform.Function.ParseJSON(rawJson);
+        if (response.statusCode == 200) {
+            
+            var responseString = String(response.content);
 
-              if (jsonObj && (jsonObj.success === true || jsonObj.success === "true")) {
-                  turnstileValid = true;
-              } else {
-                  captchaError = true; 
-              }
-          } else {
-              captchaError = true; 
-          }
+            if (responseString && responseString !== "") {
+                var jsonObj = Platform.Function.ParseJSON(responseString);
 
-        } catch (e) {
+                if (jsonObj && (jsonObj.success === true || jsonObj.success === "true")) {
+                    turnstileValid = true;
+                } else {
+                    captchaError = true; 
+                }
+            } else {
+                captchaError = true; 
+            }
+
+        } else {
+            // El servidor respondió con un error HTTP (ej: 400, 403, 500)
             captchaError = true; 
         }
 
-      } else {
+      } catch (e) {
           captchaError = true; 
       }
+
+    } else {
+        captchaError = true; 
     }
+  }
 
-    Variable.SetValue("@turnstileValid", turnstileValid);
-    Variable.SetValue("@captchaError", captchaError);
+  Variable.SetValue("@turnstileValid", turnstileValid);
+  Variable.SetValue("@captchaError", captchaError);
 
-  </script>
+</script>
+
 
 %%[
    /* Validar que proviene de local piloto */
