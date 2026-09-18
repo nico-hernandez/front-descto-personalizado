@@ -147,14 +147,18 @@
   /* ==================================================== */
   /* 6. Registrar en en Log de Requests                   */
   /* ==================================================== */
-  SET @requestId = GUID()
-  SET @requestDate = Format(DateAdd(Now(), 3, "H"),"yyyy-MM-dd hh:mm:ss") /*CST a GTM-4*/
-  InsertData(@DE_LOG, 
-            "requestId", @requestId, 
-            "rutDvCliente", @rut, 
-            "fechaConsulta", @requestDate,
-            "localConsulta", @store
-            )
+  IF NOT EMPTY(@rut) AND NOT EMPTY(@token) THEN
+    SET @requestId = GUID()
+    SET @requestDate = Format(DateAdd(Now(), 3, "H"),"yyyy-MM-dd hh:mm:ss") /*CST a GTM-4*/
+    InsertData(@DE_LOG, 
+              "requestId", @requestId, 
+              "rutDvCliente", @rut, 
+              "fechaConsulta", @requestDate,
+              "localConsulta", @store,
+              "successApiCaptcha", @captchaError,
+              "isHuman", @turnstileValid
+              )
+  ENDIF
 ]%%
 
 <!DOCTYPE html>
