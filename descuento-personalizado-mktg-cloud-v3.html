@@ -22,54 +22,68 @@
   /* Validacion Server Side con SiteVerify de Cloudflare  */
   /* ==================================================== */
 
-  SET @turnstileValid = false
-  SET @captchaError = false
+  <script runat="server">
+    Platform.Load("Core", "1.1.1");
 
-  IF NOT EMPTY(@rut) THEN
+    // 1. Lectura segura desde el espacio de AMPscript
+    var rut = Variable.GetValue("@rut");
+    var turnstileToken = Variable.GetValue("@turnstileToken");
+    var secretKey = Variable.GetValue("@SECRET_KEY");
 
-    IF NOT EMPTY(@turnstileToken) THEN
+    var turnstileValid = false;
+    var captchaError = false;
 
-      SET @requestBody = CONCAT("secret=", @SECRET_KEY, "&response=", @turnstileToken)
-      SET @responseStatusCode = 0
-      SET @responseBody = ""
-
-      SET @httpCode = HTTPPost2(
-        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-        "application/x-www-form-urlencoded",
-        @requestBody,
-        true,                 /* continueOnError: evita que la página muera si falla la API */
-        @responseStatusCode,  /* Captura el código de estado (ej: 200) */
-        @responseBody         /* Captura la respuesta JSON de Cloudflare */
-      )
-
-
-      IF @responseStatusCode == 200 THEN
-        SET @jsonObj = BuildRowsetFromJSON(@responseBody, "$.success", false)
-        
-        IF RowCount(@jsonObj) > 0 THEN
-          SET @row = Row(@jsonObj, 1)
-          SET @successVal = Field(@row, "value")
+    if (rut && rut !== "") {
+      if (turnstileToken && turnstileToken !== "") {
           
-          IF @successVal == "true" OR @successVal == true THEN
-            SET @turnstileValid = true
-          ELSE
-            SET @captchaError = true
-          ENDIF
-        ELSE
-          SET @captchaError = true
-        ENDIF
-        
-      ELSE
-        /* La API de Cloudflare respondió con un error de red (ej: 400, 500) */
-        SET @captchaError = true
-      ENDIF
+        var url = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+        var contentType = "application/json"; 
+        var jsonPayload = {
+            secret: secretKey,
+            response: turnstileToken
+        };
+        var payload = Platform.Function.Stringify(jsonPayload); 
+        var headerNames = [];
+        var headerValues = [];
+        var responseContentArray = []; 
 
-    ELSE
-      /* Se envió el formulario sin token de Turnstile (posible bypass/bot) */
-      SET @captchaError = true
-    ENDIF
+        try {
+          var statusCode = Platform.Function.HTTPPost(
+              url, 
+              contentType, 
+              payload, 
+              headerNames, 
+              headerValues, 
+              responseContentArray
+          );
 
-  ENDIF
+          if (statusCode == 200) {
+              var rawJson = responseContentArray[0];
+              var jsonObj = Platform.Function.ParseJSON(rawJson);
+
+              if (jsonObj && (jsonObj.success === true || jsonObj.success === "true")) {
+                  turnstileValid = true;
+              } else {
+                  captchaError = true; 
+              }
+          } else {
+              captchaError = true; 
+          }
+
+        } catch (e) {
+            captchaError = true; 
+        }
+
+      } else {
+          captchaError = true; 
+      }
+    }
+
+    Variable.SetValue("@turnstileValid", turnstileValid);
+    Variable.SetValue("@captchaError", captchaError);
+    
+  </script>
+
 
    /* Validar que proviene de local piloto */
   SET @storeFound = false
@@ -85,8 +99,7 @@
     ENDIF
   ENDIF
 
-  /* Consulta a la Data Extension del Club de Descuentos            */
-  /* Solo se ejecuta si el RUT viene acompañado de un captcha válido */
+  /* Consulta a la Data Extension del Club de Descuentos */
   SET @couponFound = false
 
   IF NOT EMPTY(@rut) AND @turnstileValid THEN
@@ -101,7 +114,9 @@
       SET @couponFound = true
     ENDIF
   ENDIF
+
 ]%%
+
 <!DOCTYPE html>
 <html lang="es">
 
