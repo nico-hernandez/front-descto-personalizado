@@ -2,7 +2,7 @@
   /*e.g. https://cloud.mailclubcruzverde.cl/descto-personalizado?token=9a2a9cba-7244-4ff1-b180-a7aead818fe0*/
 
   /* ==================================================== */
-  /* Variables generales: Data Extensions                 */
+  /* 1. Variables generales: Data Extensions              */
   /* ==================================================== */
 
   SET @DE_CUPONES = "CuponesPilotoZonaOriente"
@@ -10,7 +10,7 @@
   SET @DE_PARAMS = "ParametrosLanding"
 
   /* ==================================================== */
-  /* Parametros SiteKey, SecretKey MaxImpressions         */
+  /* 2. Parametros SiteKey, SecretKey MaxImpressions         */
   /* ==================================================== */
 
   SET @rows = LookupRows(@DE_PARAMS, "comment", "params")
@@ -20,7 +20,7 @@
   SET @MAX_IMPRESSIONS = Field(@row, "maxImpressions")
 
   /* ==================================================== */
-  /* Extraer parametros del formulario y desde la URL     */
+  /* 3. Extraer parametros del formulario y desde la URL  */
   /* ==================================================== */
 
   SET @rut = RequestParameter("rut")
@@ -32,7 +32,7 @@
 <script runat="server">
 
   /* ==================================================== */
-  /* Validacion Server Side con SiteVerify de Cloudflare  */
+  /* 4. Validacion Server Side SiteVerify de Cloudflare   */
   /* ==================================================== */
   Platform.Load("Core", "1.1.1");
   var rut = Variable.GetValue("@rut");
@@ -100,9 +100,21 @@
   Variable.SetValue("@captchaError", captchaError);
 </script>
 
+%%[
+  /* ==================================================== */
+  /* 5. Registrar en en Log de Requests                   */
+  /* ==================================================== */
+  SET requestId = GUID()
+  SET requestDate = Format(Now(),"yyyy-MM-dd hh:mm:ss")
+
+]%%
 
 %%[
-   /* Validar que proviene de local piloto */
+  /* ==================================================== */
+  /* 6. Validaciones para desplegar el cupon al cliente   */
+  /* ==================================================== */
+
+  /* Validar que proviene de local piloto */
   SET @storeFound = false
 
   IF NOT EMPTY(@token) THEN
@@ -133,7 +145,6 @@
 
       IF @impressions < @MAX_IMPRESSIONS THEN
       /*Incrementa en +1 el numero de impresiones de cupon*/
-      /*Registro de eventos de requests*/
       ENDIF
 
     ENDIF
@@ -142,7 +153,7 @@
 
 <!DOCTYPE html>
 <html lang="es">
-  
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
