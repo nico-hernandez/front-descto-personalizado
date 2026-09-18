@@ -1,15 +1,66 @@
 %%[
   /*e.g. https://cloud.mailclubcruzverde.cl/descto-personalizado?token=9a2a9cba-7244-4ff1-b180-a7aead818fe0*/
 
-  /* Variables generales: Data Extensions */
+  /* ==================================================== */
+  /* Variables generales: Data Extensions y Key Turnstile */
+  /* ==================================================== */
 
   SET @DE_CUPONES = "CuponesPilotoQR"
   SET @DE_TOKEN_STORE = "TokenLocal"
+  SET @PUBLIC_SITE_KEY = "0x4AAAAAAE7Em_hliPpq5zR9"
+  SET @SECRET_KEY = "0x4AAAAAAE7Em1N0uoLRs6AU1YBxx0UrExg"
 
-  /*Extraer parametros del formulario y URL*/
-  
+  /* ==================================================== */
+  /* Extraer parametros del formulario y desde la URL     */
+  /* ==================================================== */
+
   SET @rut = RequestParameter("rut")
   SET @token = RequestParameter("token")
+  SET @turnstileToken = RequestParameter("cf-turnstile-response")
+
+  /* ==================================================== */
+  /* Validacion Server Side con SiteVerify de Cloudflare  */
+  /* ==================================================== */
+
+  SET @turnstileValid = false
+  SET @captchaError = false
+
+  IF NOT EMPTY(@rut) THEN
+
+    IF NOT EMPTY(@turnstileToken) THEN
+
+      SET @requestBody = "secret=" + @SECRET_KEY + "&response=" + @turnstileToken
+      SET @responseHeaders = ""
+      SET @responseBody = ""
+
+      SET @statusCode = HTTPPost(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        "application/x-www-form-urlencoded",
+        @requestBody,
+        @responseHeaders,
+        @responseBody,
+        "Content-Type", "application/x-www-form-urlencoded"
+      )
+
+      IF @statusCode == "200" THEN
+        SET @jsonObj = ParseJSON(@responseBody)
+        SET @successVal = Field(@jsonObj, "success")
+
+        IF @successVal == "true" OR @successVal == true THEN
+          SET @turnstileValid = true
+        ELSE
+          SET @captchaError = true
+        ENDIF
+      ELSE
+        SET @captchaError = true
+      ENDIF
+
+    ELSE
+      /* Se envio el formulario sin token de Turnstile (posible bypass/bot) */
+      SET @captchaError = true
+    ENDIF
+
+  ENDIF
 
    /* Validar que proviene de local piloto */
   SET @storeFound = false
@@ -25,10 +76,11 @@
     ENDIF
   ENDIF
 
-  /* Consulta a la Data Extension del Club de Descuentos */
+  /* Consulta a la Data Extension del Club de Descuentos            */
+  /* Solo se ejecuta si el RUT viene acompañado de un captcha válido */
   SET @couponFound = false
 
-  IF NOT EMPTY(@rut) THEN
+  IF NOT EMPTY(@rut) AND @turnstileValid THEN
     SET @rows = LookupRows(@DE_CUPONES, "rut_dv_cliente", @rut)
     SET @rowCount = RowCount(@rows)
 
@@ -50,7 +102,7 @@
   <title>Descuento Personalizado</title>
   <!-- Turnstile Captcha - Firtst Preconnet link then script -->
   <link rel="preconnect" href="https://challenges.cloudflare.com" />
-  <script	src="https://challenges.cloudflare.com/turnstile/v0/api.js"	async	defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap');
 
@@ -126,7 +178,7 @@
     .field {
       margin-bottom: 18px;
     }
-    
+
     .conditions {
       margin-top: 16px;
       font-size: 12px;
@@ -214,6 +266,13 @@
       box-shadow: none;
     }
 
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
     .fine {
       margin-top: 16px;
       font-size: 12px;
@@ -278,14 +337,19 @@
         <span id="rutError" style="display:none; color:#c0392b; font-size:12px; margin-top:4px; display:none;">RUT inválido, por favor verifica.</span>
       </div>
       <!-- Turnstile Captcha Widget -->
-      <div class="cf-turnstile" data-sitekey="0x4AAAAAAE7Em_hliPpq5zR9"></div>
-      <button type="submit" id="submitBtn">Probar suerte</button>
+      <div class="cf-turnstile"
+           data-sitekey="%%=v(@PUBLIC_SITE_KEY)=%%"
+           data-callback="onTurnstileSuccess"
+           data-error-callback="onTurnstileError"
+           data-expired-callback="onTurnstileExpired">
+      </div>
+      <button type="submit" id="submitBtn" disabled>Probar suerte</button>
     </form>
 
     <p class="fine">Tus datos se usan solo para validar tu identidad y entregar el descuento. Local %%=v(@store)=%%.</p>
 
-    <!-- Consulta desde local valido, RUT ingresado y con cupon disponible -->
-    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @couponFound THEN ]%%
+    <!-- Consulta desde local valido, RUT ingresado, captcha OK y con cupon disponible -->
+    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND @couponFound THEN ]%%
 
     <span class="tag">Exclusivo Club</span>
     <div class="result">
@@ -302,8 +366,21 @@
       </form>
     </div>
 
-     <!-- Consulta desde local valido, RUT ingresado y sin cupon disponible -->
-     %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND NOT @couponFound THEN ]%%
+    <!-- Captcha inválido, ausente o rechazado por Cloudflare -->
+    %%[ ELSEIF @captchaError THEN ]%%
+
+    <span class="tag">Exclusivo Club</span>
+    <div class="result">
+      <div class="icon">⚠️</div>
+      <h2>No pudimos validar tu verificación de seguridad</h2>
+      <p>Por favor, inténtalo nuevamente.</p>
+      <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
+        <button type="submit">Reintentar</button>
+      </form>
+    </div>
+
+     <!-- Consulta desde local valido, RUT ingresado, captcha OK y sin cupon disponible -->
+     %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND NOT @couponFound THEN ]%%
       <span class="tag">Exclusivo Club</span>
       <div class="result">
         <div class="icon">😞</div>
@@ -389,32 +466,58 @@
     return dv === dvEsperadoStr;
   }
 
-  // 3. Activate validation onBlur event
+  // 3. Estado combinado: RUT válido + Turnstile resuelto
+  let rutOk = false;
+  let turnstileOk = false;
+
+  function actualizarBoton() {
+    const submitBtn = document.getElementById('submitBtn');
+    if (!submitBtn) return;
+    submitBtn.disabled = !(rutOk && turnstileOk);
+  }
+
+  // 4. Activate validation onBlur event
   function validarCampoRUT() {
     const input = document.getElementById('rut');
     const errorSpan = document.getElementById('rutError');
-    const submitBtn = document.getElementById('submitBtn');
 
     if (!input) return;
 
     const valor = input.value.trim();
 
-    // Si está vacío, no mostramos error (el required ya se encarga)
     if (valor.length === 0) {
       errorSpan.style.display = 'none';
-      if (submitBtn) submitBtn.disabled = false;
+      rutOk = false;
+      actualizarBoton();
       return;
     }
 
     if (!validarRut(valor)) {
       errorSpan.style.display = 'block';
-      if (submitBtn) submitBtn.disabled = true;
-      if (submitBtn) submitBtn.style.backgroundColor = "#e6f0f1";
+      rutOk = false;
     } else {
       errorSpan.style.display = 'none';
-      if (submitBtn) submitBtn.disabled = false;
-      if (submitBtn) submitBtn.style.backgroundColor = "var(--green)";
+      rutOk = true;
     }
+    actualizarBoton();
+  }
+
+  // 5. Callbacks del widget de Cloudflare Turnstile
+  function onTurnstileSuccess(token) {
+    turnstileOk = true;
+    console.log('onTurnstileSuccess');
+    console.log(token);
+    actualizarBoton();
+  }
+
+  function onTurnstileExpired() {
+    turnstileOk = false;
+    actualizarBoton();
+  }
+
+  function onTurnstileError() {
+    turnstileOk = false;
+    actualizarBoton();
   }
 </script>
 

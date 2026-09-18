@@ -48,6 +48,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Descuento Personalizado</title>
+  <!-- Turnstile Captcha - Firtst Preconnet link then script -->
+  <link rel="preconnect" href="https://challenges.cloudflare.com" />
+  <script	src="https://challenges.cloudflare.com/turnstile/v0/api.js"	async	defer></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap');
 
@@ -271,9 +274,11 @@
     <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
       <div class="field">
         <label for="rut">RUT</label>
-        <input type="text" id="rut" name="rut" placeholder="12.345.678-9" maxlength="12" oninput="formatRUT(this)" required>
+        <input type="text" id="rut" name="rut" placeholder="12.345.678-9" maxlength="12" oninput="formatRUT(this)" onblur="validarCampoRUT()" required>
+        <span id="rutError" style="display:none; color:#c0392b; font-size:12px; margin-top:4px; display:none;">RUT inválido, por favor verifica.</span>
       </div>
-
+      <!-- Turnstile Captcha Widget -->
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAE7Em_hliPpq5zR9"></div>
       <button type="submit" id="submitBtn">Probar suerte</button>
     </form>
 
@@ -326,33 +331,92 @@
   </div>
 
   <script>
-    // 1. Live RUT Masking Function
-    function formatRUT(input) {
+  // 1. Live RUT Masking Function
+  function formatRUT(input) {
 
-      // Clean input: allow only numbers and k/K
-      let value = input.value.replace(/[^0-9kK]/g, '').toUpperCase();
+    // Clean input: allow only numbers and k/K
+    let value = input.value.replace(/[^0-9kK]/g, '').toUpperCase();
 
-      if (value.length === 0) {
-        input.value = "";
-        return;
-      }
-
-      // Separate body and check digit (DV)
-      let body = value.slice(0, -1);
-      let dv = value.slice(-1);
-
-      if (value.length === 1) {
-        input.value = value;
-        return;
-      }
-
-      // Format body with dots
-      body = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
-      // Combine with hyphen
-      input.value = body + "-" + dv;
+    if (value.length === 0) {
+      input.value = "";
+      return;
     }
-  </script>
+
+    // Separate body and check digit (DV)
+    let body = value.slice(0, -1);
+    let dv = value.slice(-1);
+
+    if (value.length === 1) {
+      input.value = value;
+      return;
+    }
+
+    // Format body with dots
+    body = body.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+    // Combine with hyphen
+    input.value = body + "-" + dv;
+  }
+
+  // 2. Live chilean RUT validation
+  function validarRut(rutCompleto) {
+    // Clean input: allow only numbers and k/K
+    let valor = rutCompleto.replace(/\./g, '').replace(/-/g, '').trim().toUpperCase();
+
+    if (valor.length < 2) return false;
+
+    let cuerpo = valor.slice(0, -1);
+    let dv = valor.slice(-1);
+
+    if (!/^\d+$/.test(cuerpo)) return false;
+
+    // Calculates DV
+    let suma = 0;
+    let multiplo = 2;
+
+    for (let i = cuerpo.length - 1; i >= 0; i--) {
+      suma += parseInt(cuerpo.charAt(i), 10) * multiplo;
+      multiplo = multiplo === 7 ? 2 : multiplo + 1;
+    }
+
+    let dvEsperado = 11 - (suma % 11);
+    let dvEsperadoStr;
+
+    if (dvEsperado === 11) dvEsperadoStr = "0";
+    else if (dvEsperado === 10) dvEsperadoStr = "K";
+    else dvEsperadoStr = dvEsperado.toString();
+
+    return dv === dvEsperadoStr;
+  }
+
+  // 3. Activate validation onBlur event
+  function validarCampoRUT() {
+    const input = document.getElementById('rut');
+    const errorSpan = document.getElementById('rutError');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (!input) return;
+
+    const valor = input.value.trim();
+
+    // Si está vacío, no mostramos error (el required ya se encarga)
+    if (valor.length === 0) {
+      errorSpan.style.display = 'none';
+      if (submitBtn) submitBtn.disabled = false;
+      return;
+    }
+
+    if (!validarRut(valor)) {
+      errorSpan.style.display = 'block';
+      if (submitBtn) submitBtn.disabled = true;
+      if (submitBtn) submitBtn.style.backgroundColor = "#e6f0f1";
+    } else {
+      errorSpan.style.display = 'none';
+      if (submitBtn) submitBtn.disabled = false;
+      if (submitBtn) submitBtn.style.backgroundColor = "var(--green)";
+    }
+  }
+</script>
 
 </body>
 
