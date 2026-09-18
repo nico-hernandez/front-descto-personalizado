@@ -7,16 +7,17 @@
 
   SET @DE_CUPONES = "CuponesPilotoZonaOriente"
   SET @DE_TOKEN_STORE = "TokenLocal"
-  SET @DE_PARAMS = "ParametrosCaptcha"
+  SET @DE_PARAMS = "ParametrosLanding"
 
   /* ==================================================== */
-  /* Consultar Site Key y Secret Key de Turnstile Captcha */
+  /* Parametros SiteKey, SecretKey MaxImpressions         */
   /* ==================================================== */
 
-  SET @rows = LookupRows(@DE_PARAMS, "comment", "Cloudflare Turnstile Captcha")
+  SET @rows = LookupRows(@DE_PARAMS, "comment", "params")
   SET @row = Row(@rows, 1)
   SET @PUBLIC_SITE_KEY = Field(@row, "publicSiteKey")
   SET @SECRET_KEY = Field(@row, "privateSecretKey")
+  SET @MAX_IMPRESSIONS = Field(@row, "maxImpressions")
 
   /* ==================================================== */
   /* Extraer parametros del formulario y desde la URL     */
@@ -127,7 +128,14 @@
       SET @discountCode = Field(@row, "cupon")
       SET @category = Field(@row, "categoria")
       SET @name = Field(@row, "nombre")
+      SET @impressions = Field(@row, "impresiones")
       SET @couponFound = true
+
+      IF @impressions < @MAX_IMPRESSIONS THEN
+      /*Incrementa en +1 el numero de impresiones de cupon*/
+      /*Registro de eventos de requests*/
+      ENDIF
+
     ENDIF
   ENDIF
 ]%%
@@ -387,7 +395,7 @@
 
     <p class="fine">Tus datos se usan solo para validar tu identidad y entregar el descuento. Local %%=v(@store)=%%.</p>
 
-    <!-- Consulta desde local valido, RUT ingresado, captcha OK y con cupon disponible -->
+    <!-- Consulta desde local valido, RUT ingresado, captcha OK, con cupon disponible y no excede impressions -->
     %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND @couponFound THEN ]%%
 
     <span class="tag">Exclusivo Club</span>
@@ -400,6 +408,18 @@
       <div class="conditions">Cupón válido hasta 6 de septiembre 2026, válido para una sola transacción, no acumulable con otras promociones. Tope de $50.000 de descuento. Excluye packs.
       </div>
       <br>
+      <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
+        <button type="submit">Consultar otro RUT</button>
+      </form>
+    </div>
+
+    <!-- Consulta desde local valido, RUT ingresado, captcha OK, con cupon disponible pero excede impressions -->
+    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND NOT @couponFound THEN ]%%
+    <span class="tag">Exclusivo Club</span>
+    <div class="result">
+      <div class="icon">😞</div>
+      <h2>Te hemos entregado previamente tu cupón</h2>
+      <p>Nuevos cupones se activarán pronto, vuelve a intentarlo en un próxima visita a nuestros locales.</p>
       <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
         <button type="submit">Consultar otro RUT</button>
       </form>
