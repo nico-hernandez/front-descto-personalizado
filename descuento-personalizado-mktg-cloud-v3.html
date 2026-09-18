@@ -2,13 +2,23 @@
   /*e.g. https://cloud.mailclubcruzverde.cl/descto-personalizado?token=9a2a9cba-7244-4ff1-b180-a7aead818fe0*/
 
   /* ==================================================== */
-  /* Variables generales: Data Extensions y Key Turnstile */
+  /* Variables generales: Data Extensions                 */
   /* ==================================================== */
 
-  SET @DE_CUPONES = "CuponesPilotoQR"
+  SET @DE_CUPONES = "CuponesPilotoZonaOriente"
   SET @DE_TOKEN_STORE = "TokenLocal"
   SET @PUBLIC_SITE_KEY = "0x4AAAAAAE7Em_hliPpq5zR9"
   SET @SECRET_KEY = "0x4AAAAAAE7Em1N0uoLRs6AU1YBxx0UrExg"
+  SET @DE_PARAMS = "ParametrosCaptcha"
+
+  /* ==================================================== */
+  /* Consultar Site Key y Secret Key de Turnstile Captcha */
+  /* ==================================================== */
+
+  SET @rows = LookupRows(@DE_PARAMS)
+  SET @row = Row(@rows, 1)
+  SET @PUBLIC_SITE_KEY_2 = Field(@row, "publicSiteKey")
+  SET @SECRET_KEY_2 = Field(@row, "privateSecretKey")
 
   /* ==================================================== */
   /* Extraer parametros del formulario y desde la URL     */
@@ -22,6 +32,7 @@
 
 
 <script runat="server">
+
   /* ==================================================== */
   /* Validacion Server Side con SiteVerify de Cloudflare  */
   /* ==================================================== */
