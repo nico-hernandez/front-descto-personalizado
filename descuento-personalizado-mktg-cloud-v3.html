@@ -20,11 +20,11 @@
 
 ]%%
 
+
+  <script runat="server">
   /* ==================================================== */
   /* Validacion Server Side con SiteVerify de Cloudflare  */
   /* ==================================================== */
-
-  <script runat="server">
     Platform.Load("Core", "1.1.1");
     var rut = Variable.GetValue("@rut");
     var turnstileToken = Variable.GetValue("@turnstileToken");
