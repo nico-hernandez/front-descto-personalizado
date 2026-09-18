@@ -7,8 +7,6 @@
 
   SET @DE_CUPONES = "CuponesPilotoZonaOriente"
   SET @DE_TOKEN_STORE = "TokenLocal"
-  SET @PUBLIC_SITE_KEY = "0x4AAAAAAE7Em_hliPpq5zR9"
-  SET @SECRET_KEY = "0x4AAAAAAE7Em1N0uoLRs6AU1YBxx0UrExg"
   SET @DE_PARAMS = "ParametrosCaptcha"
 
   /* ==================================================== */
@@ -17,8 +15,8 @@
 
   SET @rows = LookupRows(@DE_PARAMS, "comment", "Cloudflare Turnstile Captcha")
   SET @row = Row(@rows, 1)
-  SET @PUBLIC_SITE_KEY_2 = Field(@row, "publicSiteKey")
-  SET @SECRET_KEY_2 = Field(@row, "privateSecretKey")
+  SET @PUBLIC_SITE_KEY = Field(@row, "publicSiteKey")
+  SET @SECRET_KEY = Field(@row, "privateSecretKey")
 
   /* ==================================================== */
   /* Extraer parametros del formulario y desde la URL     */
@@ -29,7 +27,6 @@
   SET @turnstileToken = RequestParameter("cf-turnstile-response")
 
 ]%%
-
 
 <script runat="server">
 
