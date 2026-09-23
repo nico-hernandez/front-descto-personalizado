@@ -18,7 +18,7 @@
   SET @row = Row(@rows, 1)
   SET @PUBLIC_SITE_KEY = Field(@row, "publicSiteKey")
   SET @SECRET_KEY = Field(@row, "privateSecretKey")
-  SET @MAX_IMPRESSIONS = Field(@row, "maxImpressions")
+  SET @MAX_IMPRESSIONS = 0/*Field(@row, "maxImpressions")*/
 
   /* ==================================================== */
   /* 3. Extraer parametros del formulario y desde la URL  */
