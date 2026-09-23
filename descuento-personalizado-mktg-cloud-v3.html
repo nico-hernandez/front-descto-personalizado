@@ -438,7 +438,7 @@
     </div>
 
     <!-- Consulta desde local valido, RUT ingresado, captcha OK, con cupon disponible pero excede impressions -->
-    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND NOT @couponFound AND @impressions >= @MAX_IMPRESSIONS THEN ]%%
+    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND @couponFound AND @impressions >= @MAX_IMPRESSIONS THEN ]%%
     <span class="tag">Exclusivo Club</span>
     <div class="result">
       <div class="icon">😞</div>
