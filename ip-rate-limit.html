@@ -12,14 +12,13 @@
 
         // 3. Calcular la fecha y hora de hace exactamente 1 minuto en formato ISO
         var unMinutoAtras = new Date();
-        // --- IMPRESIÓN POR CONSOLA DE LA CLOUDPAGE ---
+        // --- IMPRESIÓN EN HTML LA CLOUDPAGE ---
         Write("<!-- unMinutoAtras: " + unMinutoAtras.toString() + " -->\n");
         // ---
         unMinutoAtras.setMinutes(unMinutoAtras.getMinutes() - 1);
-        unMinutoAtras.setHours(unMinutoAtras.getHours() - 3); // Ajuste de zona horaria (-3 horas)
         var fechaFiltro = unMinutoAtras.toISOString();
 
-        // --- IMPRESIÓN POR CONSOLA DE LA CLOUDPAGE ---
+        // --- IMPRESIÓN EN HTML DE LA CLOUDPAGE ---
         Write("<!-- fechaFiltro: " + fechaFiltro.toString() + " -->\n");
         // ---
 
