@@ -265,7 +265,6 @@
   ENDIF
 ]%%
 
- %%[ IF NOT(@interruptRequest) THEN ]%%
 
 <!DOCTYPE html>
 <html lang="es">
@@ -522,8 +521,8 @@
 
     <p class="fine">Tus datos se usan solo para validar tu identidad y entregar el descuento. Local %%=v(@store)=%%.</p>
 
-    <!-- Consulta desde local valido, RUT ingresado, captcha OK, con cupon disponible y no excede impressions -->
-    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND @couponFound AND @impressions < @MAX_IMPRESSIONS THEN ]%%
+    <!-- Consulta desde local valido, RUT ingresado, captcha OK, con cupon disponible, no excede impressions e IP rate ok-->
+    %%[ ELSEIF @storeFound AND NOT EMPTY(@rut) AND @turnstileValid AND @couponFound AND @impressions < @MAX_IMPRESSIONS AND NOT(@interruptRequest) THEN ]%%
 
     <span class="tag">Exclusivo Club</span>
     <div class="result">
@@ -707,5 +706,3 @@
 </body>
 
 </html>
-
- %%[ ENDIF ]%%
