@@ -19,6 +19,9 @@
         logUnMinutoAtrasString = unMinutoAtras.toString();
         logFechaFiltroISO = fechaFiltro;
 
+        Write('<script>console.log("' + logUnMinutoAtrasString + '")</script>');
+        Write('<script>console.log("' + logFechaFiltroISO + '")</script>');  
+        
         var prox = new Script.Util.WSProxy();
 
         // 4. Construir el filtro compuesto para la base de datos
@@ -71,12 +74,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Bienvenido</title>
-    <!-- ENVIAR DATOS A LA CONSOLA DE JS DEL NAVEGADOR -->
-    <script>
-        console.log("--- SFMC Server Debug (Permitido) ---");
-        console.log("unMinutoAtras String:", "<script runat=server>Write(logUnMinutoAtrasString);</script>");
-        console.log("fechaFiltro ISO:", "<script runat=server>Write(logFechaFiltroISO);</script>");
-    </script>
 </head>
 <body>
     <h1>Contenido seguro de la CloudPage</h1>
