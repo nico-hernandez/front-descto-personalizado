@@ -9,10 +9,11 @@
         // 2. Leer la IP de forma directa y exclusiva usando el método nativo de la plataforma
         var ipActual = Platform.Request.ClientIP();
 
-        // 3. Calcular el tiempo restando 1 minuto y aplicando el ajuste de -3 horas
+        // 3. Calcular el tiempo restando 1 minuto y aplicando el ajuste de horario actual
         var fechaFiltroObj = new Date();
         fechaFiltroObj.setMinutes(fechaFiltroObj.getMinutes() - 1); 
-        fechaFiltroObj.setHours(fechaFiltroObj.getHours() - 3);     
+        fechaFiltroObj.setHours(fechaFiltroObj.getMinutes() + 3); 
+  
         
         // --- IMPRESIÓN POR CONSOLA (HTML Comentarios) ---
         Write("<!-- ipActual: " + String(ipActual) + " -->\n");
