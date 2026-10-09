@@ -3,27 +3,23 @@
 
     var limiteConsultas = 30; 
     var ventanaMinutos = 1;
-    var horasZonaHoraria = 3;
+    var diferenciaHoras = 3;
     var deCustomerKey = "RequestsLogExternalKey"; // Reemplaza con tu External Key
 
     try {
         // 1. Leer la IP de forma directa y exclusiva
         var ipActual = Platform.Request.ClientIP();
 
-        // 2. Calcular el límite de tiempo del último minuto en milisegundos (aplicando el ajuste de -13 horas)
+        // 2. Calcular el límite de tiempo del último minuto en milisegundos (aplicando el ajuste de +3 horas)
         var d = new Date();
         d.setMinutes(d.getMinutes() - ventanaMinutos); 
-        var timestampLimite = d.getTime(); // Tiempo en milisegundos para comparar números
-
-        // (Nota: "Central Standard Time" es la zona por defecto de los servidores de SFMC)
-        dString = FormatDate(d, "yyyy-MM-dd HH:mm:ss")
-        var zonaOrigen = "Central Standard Time"; 
-        var zonaDestino = "SA Western Standard Time"; // Ejemplo: Santiago de Chile
-        var dZonaChile = ConvertTimeZone(dString, zonaOrigen, zonaDestino);
+        // Tiempo en milisegundos para comparar números, agrego 3h para pasar de GTM-6 (SFMC) a GTM-3
+        var timestampLimite = d.getTime() + (diferenciaHoras * 60 * 60 * 1000); 
 
         // --- IMPRESIÓN POR CONSOLA DE LA CLOUDPAGE (HTML Comentarios) ---
         Write("<!-- ipActual: " + String(ipActual) + " -->\n");
-        Write("<!-- Fecha limite objeto: " + dZonaChile.toString() + " -->\n");
+        Write("<!-- Fecha limite objeto: " + d.toString() + " -->\n");
+        Write("<!-- TimestampLimite: " + String(timestampLimite) + " -->\n");
         // -----------------------------------------------------------------
 
         var prox = new Script.Util.WSProxy();
