@@ -75,7 +75,9 @@
             }
         }
 
-        Write("<!-- Total consultas en el ultimo minuto: " + totalConsultasEnUltimoMinuto + " -->\n");
+        Write("<!-- Inicio ventana: " + d.toString() + " -->\n");
+        Write("<!-- Duracion ventana (min): " + String(ventanaMinutos) + " -->\n");
+        Write("<!-- Total consultas en ventana: " + totalConsultasEnUltimoMinuto + " -->\n");
 
         // 5. Validar si excede el límite y aplicar la denegación
         if (totalConsultasEnUltimoMinuto > limiteConsultas) {
