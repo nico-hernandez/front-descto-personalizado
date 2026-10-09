@@ -2,7 +2,7 @@
     Platform.Load("Core", "1.1.1");
 
     var limiteConsultas = 30; 
-    var ventanaMinutos = 1;
+    var ventanaMinutos = 2;
     var deCustomerKey = "RequestsLogExternalKey"; // Reemplaza con tu External Key
 
     try {
@@ -64,7 +64,7 @@
                     var fechaOk = new Date(fechaUnix);
                     Write("<!-- fechaFormateadaJS: " + fechaFormateadaJS + " -->\n");
                     Write("<!-- fechaRegistroObj: " + fechaRegistroObj.toString() + " -->\n");
-                    Write("<!-- unix: " + String(fechaRegistroObj.getTime()) + " -->\n");
+                    Write("<!-- unix: " + String(fechaRegistroObj.getTime()) + " -->\n"); //Unix siempre se muestra igual, incluso restando.
                     Write("<!-- fechaOk: " + fechaOk.toString() + " -->\n");
                     
                     // Comparación numérica de timestamps (100% precisa)
