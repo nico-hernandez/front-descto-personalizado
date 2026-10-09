@@ -37,10 +37,11 @@
 
         var totalConsultasEnUltimoMinuto = 0;
         Write("<!-- totalConsultasEnUltimoMinuto: " + String("hello") + " -->\n");
+        Write("<!-- reqResults: " + Stringify(req.Results) + " -->\n");
 
         if (req != null && req.Results != null) {
             var registros = req.Results;
-             Write("<!-- registros: " + String("hello") + " -->\n");
+            Write("<!-- registros: " + String("hello") + " -->\n");
 
             // 4. Recorrer los registros de la IP y validar la fecha con JavaScript nativo
             for (var i = 0; i < registros.length; i++) {
