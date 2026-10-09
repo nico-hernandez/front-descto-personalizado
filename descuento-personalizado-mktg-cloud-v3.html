@@ -20,6 +20,7 @@
   SET @PUBLIC_SITE_KEY = Field(@row, "publicSiteKey")
   SET @SECRET_KEY = Field(@row, "privateSecretKey")
   SET @MAX_IMPRESSIONS = Field(@row, "maxImpressions")
+  SET @TODAY = FormatDate(Now(), "d MMMM yyyy", "", "es-ES")
 
   /* ==================================================== */
   /* 3. Extraer parametros del formulario y desde la URL  */
@@ -535,7 +536,7 @@
       <h2>Usálo en %%=v(@category)=%%</h2>
       <p>Dicta este código en caja y obtén el descuento en tu compra actual.</p>
       <div class="code-box">%%=v(@discountCode)=%%</div>
-      <div class="conditions">Cupón válido hasta 6 de septiembre 2026, válido para una sola transacción, no acumulable con otras promociones. Tope de $50.000 de descuento. Excluye packs.
+      <div class="conditions">Cupón válido hasta el %%=v(@TODAY)=%%, válido para una sola transacción, no acumulable con otras promociones. Tope de $20.000 de descuento. Excluye packs.
       </div>
       <br>
       <form method="post" action="%%=RequestParameter('PAGEURL')=%%">
