@@ -109,8 +109,8 @@
   /* 5. Verifica IP Rate Limit contra consultas anteriores */
   /* ===================================================== */   
   var interruptRequest = false;
-  var limiteConsultas = 3; 
-  var ventanaMinutos = 2;
+  var limiteConsultas = 6; 
+  var ventanaMinutos = 1;
   var deCustomerKey = "RequestsLogExternalKey"; // Reemplaza con tu External Key
 
   try {
@@ -123,9 +123,9 @@
       // Tiempo en milisegundos para comparar números, agrego 3h para pasar de GTM-6 (SFMC) a GTM-3
       var timestampLimite = d.getTime()
 
-      Write("<!-- ipActual: " + String(ipActual) + " -->\n");
-      Write("<!-- Fecha limite objeto: " + d.toString() + " -->\n");
-      Write("<!-- TimestampLimite: " + String(timestampLimite) + " -->\n");
+      //Write("<!-- ipActual: " + String(ipActual) + " -->\n");
+      //Write("<!-- Fecha limite objeto: " + d.toString() + " -->\n");
+      //Write("<!-- TimestampLimite: " + String(timestampLimite) + " -->\n");
 
       var prox = new Script.Util.WSProxy();
 
@@ -141,12 +141,12 @@
       var req = prox.retrieve("DataExtensionObject[" + deCustomerKey + "]", cols, filter);
 
       var totalConsultasEnUltimoMinuto = 0;
-      Write("<!-- totalConsultasEnUltimoMinuto: " + String("hello") + " -->\n");
-      Write("<!-- reqResults: " + Stringify(req.Results) + " -->\n");
+      //Write("<!-- totalConsultasEnUltimoMinuto: " + String("hello") + " -->\n");
+      //Write("<!-- reqResults: " + Stringify(req.Results) + " -->\n");
 
       if (req != null && req.Results != null) {
           var registros = req.Results;
-          Write("<!-- registros: " + String("hello") + " -->\n");
+          //Write("<!-- registros: " + String("hello") + " -->\n");
 
           // 4. Recorrer los registros de la IP y validar la fecha con JavaScript nativo
           for (var i = 0; i < registros.length; i++) {
@@ -168,10 +168,10 @@
                   var fechaRegistroObj = new Date(fechaFormateadaJS); // asume GTM-6 pero debiese ser GTM-3
                   var fechaUnix = fechaRegistroObj.getTime() - 3600000*3;
                   var fechaOk = new Date(fechaUnix);
-                  Write("<!-- fechaFormateadaJS: " + fechaFormateadaJS + " -->\n");
-                  Write("<!-- fechaRegistroObj: " + fechaRegistroObj.toString() + " -->\n");
-                  Write("<!-- unix: " + String(fechaRegistroObj.getTime()) + " -->\n"); //Unix siempre se muestra igual, incluso restando.
-                  Write("<!-- fechaOk: " + fechaOk.toString() + " -->\n");
+                  //Write("<!-- fechaFormateadaJS: " + fechaFormateadaJS + " -->\n");
+                  //Write("<!-- fechaRegistroObj: " + fechaRegistroObj.toString() + " -->\n");
+                  //Write("<!-- unix: " + String(fechaRegistroObj.getTime()) + " -->\n"); //Unix siempre se muestra igual, incluso restando.
+                  //Write("<!-- fechaOk: " + fechaOk.toString() + " -->\n");
                   
                   // Comparación numérica de timestamps (100% precisa)
                   if (fechaOk.getTime() >= timestampLimite) {
@@ -181,9 +181,9 @@
           }
       }
 
-      Write("<!-- Inicio ventana: " + d.toString() + " -->\n");
-      Write("<!-- Duracion ventana (min): " + String(ventanaMinutos) + " -->\n");
-      Write("<!-- Total consultas en ventana: " + totalConsultasEnUltimoMinuto + " -->\n");
+      //Write("<!-- Inicio ventana: " + d.toString() + " -->\n");
+      //Write("<!-- Duracion ventana (min): " + String(ventanaMinutos) + " -->\n");
+      //Write("<!-- Total consultas en ventana: " + totalConsultasEnUltimoMinuto + " -->\n");
 
       // 5. Validar si excede el límite y aplicar la denegación
       if (totalConsultasEnUltimoMinuto > limiteConsultas) {
