@@ -60,8 +60,8 @@
                     // Convertir el formato "2026-09-22 15:48:18" a un formato que el Date de JS entienda ("2026/09/22 15:48:18")
                     var fechaFormateadaJS = fechaStringDE.replace(/-/g, '/');
                     var fechaRegistroObj = new Date(fechaFormateadaJS); // asume GTM-6 pero debiese ser GTM-3
-                    var fechaUnix = fechaRegistroObj.getTime() //- 3600000*3
-                    var fechaOk = new Date(fechaUnix)
+                    var fechaUnix = fechaRegistroObj.getTime() - 3600000*3;
+                    var fechaOk = new Date(fechaUnix);
                     Write("<!-- fechaFormateadaJS: " + fechaFormateadaJS + " -->\n");
                     Write("<!-- fechaRegistroObj: " + fechaRegistroObj.toString() + " -->\n");
                     Write("<!-- unix: " + String(fechaRegistroObj.getTime()) + " -->\n");
