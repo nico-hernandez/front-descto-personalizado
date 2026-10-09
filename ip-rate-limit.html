@@ -56,12 +56,13 @@
                 }
 
                 if (fechaStringDE) {
-                    // --- IMPRESIÓN POR CONSOLA DE LA CLOUDPAGE (HTML Comentarios) ---//
-                    Write("<!-- fechaStringDE: " + String("hello") + " -->\n");
                     
                     // Convertir el formato "2026-09-22 15:48:18" a un formato que el Date de JS entienda ("2026/09/22 15:48:18")
                     var fechaFormateadaJS = fechaStringDE.replace(/-/g, '/');
                     var fechaRegistroObj = new Date(fechaFormateadaJS);
+                    Write("<!-- fechaFormateadaJS: " + fechaFormateadaJS + " -->\n");
+                    Write("<!-- fechaRegistroObj: " + fechaRegistroObj.toString() + " -->\n");
+                    Write("<!-- unix: " + String(fechaRegistroObj.getTime()) + " -->\n");
                     
                     // Comparación numérica de timestamps (100% precisa)
                     if (fechaRegistroObj.getTime() >= timestampLimite) {
