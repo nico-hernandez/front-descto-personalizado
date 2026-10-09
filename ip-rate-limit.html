@@ -10,18 +10,18 @@
         // 2. Leer la IP del cliente usando la dirección remota estándar
         ipActual = Platform.Request.ClientIP();
 
+        // --- IP ACTUAL POR CONSOLA DE LA CLOUDPAGE ---
+        Write("<!-- ipActual: " + ipActual.toString() + " -->\n");
+        // ----------------------------------------------
+
         // 3. Calcular la fecha y hora de hace exactamente 1 minuto en formato ISO
         var unMinutoAtras = new Date();
         unMinutoAtras.setMinutes(unMinutoAtras.getMinutes() - 1);
         var fechaFiltro = unMinutoAtras.toISOString();
 
-        // Guardamos los valores para pasarlos a la consola de JS más abajo
-        logUnMinutoAtrasString = unMinutoAtras.toString();
-        logFechaFiltroISO = fechaFiltro;
-
-        Write("<script>console.log(" + "hello" + ");</script>")
-        Write("<script>console.log(" + logUnMinutoAtrasString + ");</script>")
-        Write("<script>console.log(" + logFechaFiltroISO + ");</script>")
+        // --- UNMINUTOATRAS POR CONSOLA DE LA CLOUDPAGE ---
+        Write("<!-- unMinutoAtras: " + unMinutoAtras.toString() + " -->\n");
+        // ----------------------------------------------
 
         var prox = new Script.Util.WSProxy();
 
@@ -75,9 +75,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Hola</title>
-    <script>
-        console.log('<ctrl:var name="unMinutoAtras" />');
-    </script>
 </head>
 <body>
     <h1>Contenido seguro de la CloudPage</h1>
