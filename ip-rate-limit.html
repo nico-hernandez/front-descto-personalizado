@@ -3,25 +3,16 @@
 
     // 1. Configuración de parámetros de control
     var limiteConsultas = 30; 
-    var deCustomerKey = "TU_EXTERNAL_KEY_DE_LA_DATA_EXTENSION"; // Reemplaza con tu External Key
+    var deCustomerKey = "RequestsLog"; // Reemplaza con tu External Key
 
     try {
-        // 2. Leer la IP del cliente usando los encabezados del servidor en SSJS
-        var ipActual = Platform.Request.GetRequestHeader("X-Forwarded-For");
-        
-        // Si pasa por múltiples proxies, X-Forwarded-For devuelve una lista. Tomamos la primera IP.
-        if (ipActual && ipActual.indexOf(',') !== -1) {
-            ipActual = ipActual.split(',')[0].trim();
-        }
-
-        // Si el encabezado anterior está vacío, usamos la dirección remota estándar
-        if (!ipActual) {
-            ipActual = Platform.Request.ClientIP();
-        }
+        // 2. Leer la IP del cliente usando la dirección remota estándar
+        ipActual = Platform.Request.ClientIP();
 
         // 3. Calcular la fecha y hora de hace exactamente 1 minuto en formato ISO
         var unMinutoAtras = new Date();
         unMinutoAtras.setMinutes(unMinutoAtras.getMinutes() - 1);
+        unMinutoAtras.setHours(unMinutoAtras.getHours() - 3); // Ajuste de zona horaria (-3 horas)
         var fechaFiltro = unMinutoAtras.toISOString();
 
         var prox = new Script.Util.WSProxy();
