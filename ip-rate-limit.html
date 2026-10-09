@@ -1,55 +1,72 @@
 <script runat="server">
     Platform.Load("Core", "1.1.1");
 
-    // 1. Configuración de parámetros de control
     var limiteConsultas = 30; 
     var deCustomerKey = "RequestsLogExternalKey"; // Reemplaza con tu External Key
 
     try {
-        // 2. Leer la IP de forma directa y exclusiva usando el método nativo de la plataforma
+        // 1. Leer la IP de forma directa y exclusiva
         var ipActual = Platform.Request.ClientIP();
 
-        // 3. Calcular el tiempo restando 1 minuto y aplicando el ajuste de horario actual
-        var fechaFiltroObj = new Date();
-        fechaFiltroObj.setMinutes(fechaFiltroObj.getMinutes() - 1); 
-        fechaFiltroObj.setHours(fechaFiltroObj.getMinutes() - 13);
-  
-        
-        // --- IMPRESIÓN POR CONSOLA (HTML Comentarios) ---
-        Write("<!-- ipActual: " + String(ipActual) + " -->\n");
-        Write("<!-- fechaFiltroObj: " + String(fechaFiltroObj) + " -->\n");
-        // -------------------------------------------------
+        // 2. Calcular el límite de tiempo del último minuto en milisegundos (aplicando el ajuste de -13 horas)
+        var d = new Date();
+        d.setMinutes(d.getMinutes() - 1); 
+        d.setHours(d.getHours() - 13);     
+        var timestampLimite = d.getTime(); // Tiempo en milisegundos para comparar números
 
-        // Usamos la función nativa Format() de SFMC en lugar de toISOString()
-        var fechaFiltro = Format(fechaFiltroObj, "yyyy-MM-ddTHH:mm:sszzz");
+        // --- IMPRESIÓN POR CONSOLA DE LA CLOUDPAGE (HTML Comentarios) ---
+        Write("<!-- ipActual: " + String(ipActual) + " -->\n");
+        Write("<!-- Fecha limite objeto: " + d.toString() + " -->\n");
+        // -----------------------------------------------------------------
 
         var prox = new Script.Util.WSProxy();
 
-        // 4. Construir el filtro compuesto para la base de datos
+        // 3. Filtrar EN LA BASE DE DATOS únicamente por la IP (Operador de coincidencia exacta: 100% seguro)
         var filter = {
-            LeftOperand: {
-                Property: "ipCliente",
-                SimpleOperator: "equals",
-                Value: ipActual
-            },
-            LogicalOperator: "AND",
-            RightOperand: {
-                Property: "fechaConsulta",
-                SimpleOperator: "greaterThanOrEqual",
-                Value: fechaFiltro
-            }
+            Property: "ipCliente",
+            SimpleOperator: "equals",
+            Value: ipActual
         };
 
-        var cols = ["requestId"];
+        // Traemos fechaConsulta para procesarla en el servidor
+        var cols = ["requestId", "fechaConsulta"];
         var req = prox.retrieve("DataExtensionObject[" + deCustomerKey + "]", cols, filter);
 
-        var totalConsultas = 0;
+        var totalConsultasEnUltimoMinuto = 0;
+
         if (req != null && req.Results != null) {
-            totalConsultas = req.Results.length;
+            var registros = req.Results;
+
+            // 4. Recorrer los registros de la IP y validar la fecha con JavaScript nativo
+            for (var i = 0; i < registros.length; i++) {
+                var propiedades = registros[i].Properties;
+                var fechaStringDE = "";
+
+                // Extraer el valor de fechaConsulta del registro
+                for (var j = 0; j < propiedades.length; j++) {
+                    if (propiedades[j].Name == "fechaConsulta") {
+                        fechaStringDE = propiedades[j].Value;
+                        break;
+                    }
+                }
+
+                if (fechaStringDE) {
+                    // Convertir el formato "2026-09-22 15:48:18" a un formato que el Date de JS entienda ("2026/09/22 15:48:18")
+                    var fechaFormateadaJS = fechaStringDE.replace(/-/g, '/');
+                    var fechaRegistroObj = new Date(fechaFormateadaJS);
+                    
+                    // Comparación numérica de timestamps (100% precisa)
+                    if (fechaRegistroObj.getTime() >= timestampLimite) {
+                        totalConsultasEnUltimoMinuto++;
+                    }
+                }
+            }
         }
 
-        // 5. Validar si excede el límite y aplicar la denegación en SSJS
-        if (totalConsultas > limiteConsultas) {
+        Write("<!-- Total consultas en el ultimo minuto: " + totalConsultasEnUltimoMinuto + " -->\n");
+
+        // 5. Validar si excede el límite y aplicar la denegación
+        if (totalConsultasEnUltimoMinuto > limiteConsultas) {
             
             Platform.Response.SetResponseHeader("Status", "429 Too Many Requests");
             
@@ -60,7 +77,7 @@
         }
 
     } catch (ex) {
-        // Durante pruebas puedes descomentar la siguiente línea para auditar fallos ocultos:
+        // En producción se puede dejar vacío
         // Write("<!-- Error detectado: " + Stringify(ex) + " -->");
     }
 </script>
