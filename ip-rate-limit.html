@@ -19,9 +19,8 @@
         logUnMinutoAtrasString = unMinutoAtras.toString();
         logFechaFiltroISO = fechaFiltro;
 
-        Write('<script>console.log("test")</script>');
-        Write('<script>console.log("' + logUnMinutoAtrasString + '")</script>');
-        Write('<script>console.log("' + logFechaFiltroISO + '")</script>');  
+        Write("<script>console.log(" + logUnMinutoAtrasString + ");</script>")
+        Write("<script>console.log(" + logFechaFiltroISO + ");</script>")
 
         var prox = new Script.Util.WSProxy();
 
