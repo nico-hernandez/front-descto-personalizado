@@ -36,6 +36,7 @@
         var req = prox.retrieve("DataExtensionObject[" + deCustomerKey + "]", cols, filter);
 
         var totalConsultasEnUltimoMinuto = 0;
+        Write("<!-- totalConsultasEnUltimoMinuto: " + String("hello") + " -->\n");
 
         if (req != null && req.Results != null) {
             var registros = req.Results;
