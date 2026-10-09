@@ -13,12 +13,17 @@
         // 2. Calcular el límite de tiempo del último minuto en milisegundos (aplicando el ajuste de -13 horas)
         var d = new Date();
         d.setMinutes(d.getMinutes() - ventanaMinutos); 
-        d.setHours(d.getHours() + horasZonaHoraria);     
         var timestampLimite = d.getTime(); // Tiempo en milisegundos para comparar números
+
+        // (Nota: "Central Standard Time" es la zona por defecto de los servidores de SFMC)
+        dString = FormatDate(d, "yyyy-MM-dd HH:mm:ss")
+        var zonaOrigen = "Central Standard Time"; 
+        var zonaDestino = "SA Western Standard Time"; // Ejemplo: Santiago de Chile
+        var dZonaChile = Platform.Function.ConvertTimeZone(dString, zonaOrigen, zonaDestino);
 
         // --- IMPRESIÓN POR CONSOLA DE LA CLOUDPAGE (HTML Comentarios) ---
         Write("<!-- ipActual: " + String(ipActual) + " -->\n");
-        Write("<!-- Fecha limite objeto: " + d.toString() + " -->\n");
+        Write("<!-- Fecha limite objeto: " + dZonaChile.toString() + " -->\n");
         // -----------------------------------------------------------------
 
         var prox = new Script.Util.WSProxy();
