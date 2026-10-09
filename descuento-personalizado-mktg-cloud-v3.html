@@ -108,6 +108,7 @@
   /* ===================================================== */
   /* 5. Verifica IP Rate Limit contra consultas anteriores */
   /* ===================================================== */   
+  var interruptRequest = False;
   var limiteConsultas = 3; 
   var ventanaMinutos = 2;
   var deCustomerKey = "RequestsLogExternalKey"; // Reemplaza con tu External Key
@@ -193,6 +194,8 @@
           Write("<p>Has realizado demasiadas solicitudes en el último minuto desde la IP: <strong>" + ipActual + "</strong>.</p>");
           
           Platform.Response.End();
+          interruptRequest = True;
+          Variable.SetValue("@interruptRequest", interruptRequest);
       }
 
   } catch (ex) {
@@ -261,6 +264,8 @@
               )
   ENDIF
 ]%%
+
+ %%[ IF NOT(@interruptRequest) THEN ]%%
 
 <!DOCTYPE html>
 <html lang="es">
@@ -702,3 +707,5 @@
 </body>
 
 </html>
+
+ %%[ ENDIF ]%%
