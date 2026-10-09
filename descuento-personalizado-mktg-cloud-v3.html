@@ -137,9 +137,10 @@
       SET @impressions = Field(@row, "impresiones")
       SET @couponFound = true
 
-      /*IF @impressions < @MAX_IMPRESSIONS THEN
-      UpdateData(@DE_CUPONES, 1, "SubscriberKey", @subscriberKey, "impresiones", @nuevasImpresiones)
-      ENDIF*/
+      IF @impressions < @MAX_IMPRESSIONS THEN
+        SET @newImpressions = Add(@impressions, 1)
+        UpdateData(@DE_CUPONES, 1, "rut_dv_cliente", @rut, "impresiones", @newImpressions)
+      ENDIF
 
     ENDIF
   ENDIF
@@ -170,7 +171,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>%%=v(@MAX_IMPRESSIONS)=%% XDescuento Personalizado</title>
+  <title>%%=v(@MAX_IMPRESSIONS)=%% Descuento Personalizado</title>
   <!-- Turnstile Captcha - Firtst Preconnet link then script -->
   <link rel="preconnect" href="https://challenges.cloudflare.com" />
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
