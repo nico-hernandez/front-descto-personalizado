@@ -501,7 +501,7 @@
     </div>
 
     <!-- Consulta desde local valido y aun no ingresa RUT -->
-    %%[ IF @storeFound AND EMPTY(@rut) AND NOT @couponFound THEN ]%%
+    %%[ ELSEIF @storeFound AND EMPTY(@rut) AND NOT @couponFound THEN ]%%
 
     <span class="tag">Exclusivo Club</span>
     <h1>Descubre si tienes un descuento exclusivo para ti.</h1>
