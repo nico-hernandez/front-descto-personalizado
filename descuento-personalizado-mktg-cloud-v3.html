@@ -18,7 +18,7 @@
   SET @row = Row(@rows, 1)
   SET @PUBLIC_SITE_KEY = Field(@row, "publicSiteKey")
   SET @SECRET_KEY = Field(@row, "privateSecretKey")
-  SET @MAX_IMPRESSIONS = 0/*Field(@row, "maxImpressions")*/
+  SET @MAX_IMPRESSIONS = 1000/*Field(@row, "maxImpressions")*/
 
   /* ==================================================== */
   /* 3. Extraer parametros del formulario y desde la URL  */
@@ -138,7 +138,7 @@
       SET @couponFound = true
 
       IF @impressions < @MAX_IMPRESSIONS THEN
-      /*Incrementa en +1 el numero de impresiones de cupon*/
+      UpdateData(@DE_CUPONES, 1, "SubscriberKey", @subscriberKey, "impresiones", @nuevasImpresiones)
       ENDIF
 
     ENDIF
