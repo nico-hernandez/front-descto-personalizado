@@ -12,18 +12,12 @@
 
         // 3. Calcular la fecha y hora de hace exactamente 1 minuto en formato ISO
         var unMinutoAtras = new Date();
-        // --- IMPRESIÓN EN HTML LA CLOUDPAGE ---
-        Write("<!-- unMinutoAtras: " + unMinutoAtras.toString() + " -->\n");
-        // ---
         unMinutoAtras.setMinutes(unMinutoAtras.getMinutes() - 1);
         var fechaFiltro = unMinutoAtras.toISOString();
 
-        // --- IMPRESIÓN EN HTML DE LA CLOUDPAGE ---
-        Write("<!-- fechaFiltro: " + fechaFiltro.toString() + " -->\n");
-        // ---
-        // --- IMPRESIÓN EN HTML DE LA CLOUDPAGE ---
-        Write("<!-- Test -->\n");
-        // ---
+        // Guardamos los valores para pasarlos a la consola de JS más abajo
+        logUnMinutoAtrasString = unMinutoAtras.toString();
+        logFechaFiltroISO = fechaFiltro;
 
         var prox = new Script.Util.WSProxy();
 
@@ -77,6 +71,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Bienvenido</title>
+    <!-- ENVIAR DATOS A LA CONSOLA DE JS DEL NAVEGADOR -->
+    <script>
+        console.log("--- SFMC Server Debug (Permitido) ---");
+        console.log("unMinutoAtras String:", "<script runat=server>Write(logUnMinutoAtrasString);</script>");
+        console.log("fechaFiltro ISO:", "<script runat=server>Write(logFechaFiltroISO);</script>");
+    </script>
 </head>
 <body>
     <h1>Contenido seguro de la CloudPage</h1>
