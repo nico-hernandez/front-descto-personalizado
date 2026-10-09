@@ -2,6 +2,7 @@
     Platform.Load("Core", "1.1.1");
 
     var limiteConsultas = 30; 
+    var ventanaMinutos = 180;
     var deCustomerKey = "RequestsLogExternalKey"; // Reemplaza con tu External Key
 
     try {
@@ -10,7 +11,7 @@
 
         // 2. Calcular el límite de tiempo del último minuto en milisegundos (aplicando el ajuste de -13 horas)
         var d = new Date();
-        d.setMinutes(d.getMinutes() - 1); 
+        d.setMinutes(d.getMinutes() - ventanaMinutos); 
         d.setHours(d.getHours() - 13);     
         var timestampLimite = d.getTime(); // Tiempo en milisegundos para comparar números
 
