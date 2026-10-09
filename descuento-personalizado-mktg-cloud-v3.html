@@ -137,9 +137,9 @@
       SET @impressions = Field(@row, "impresiones")
       SET @couponFound = true
 
-      IF @impressions < @MAX_IMPRESSIONS THEN
+      /*IF @impressions < @MAX_IMPRESSIONS THEN
       UpdateData(@DE_CUPONES, 1, "SubscriberKey", @subscriberKey, "impresiones", @nuevasImpresiones)
-      ENDIF
+      ENDIF*/
 
     ENDIF
   ENDIF
