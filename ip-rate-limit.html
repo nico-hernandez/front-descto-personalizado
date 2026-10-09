@@ -14,7 +14,7 @@
         var d = new Date();
         d.setMinutes(d.getMinutes() - ventanaMinutos); 
         // Tiempo en milisegundos para comparar números, agrego 3h para pasar de GTM-6 (SFMC) a GTM-3
-        var timestampLimite = d.getTime() + (diferenciaHoras * 60 * 60 * 1000); 
+        var timestampLimite = d.getTime()
 
         // --- IMPRESIÓN POR CONSOLA DE LA CLOUDPAGE (HTML Comentarios) ---
         Write("<!-- ipActual: " + String(ipActual) + " -->\n");
@@ -54,6 +54,9 @@
                 }
 
                 if (fechaStringDE) {
+                    // --- IMPRESIÓN POR CONSOLA DE LA CLOUDPAGE (HTML Comentarios) ---//
+                    Write("<!-- fechaStringDE: " + String("hello") + " -->\n");
+                    
                     // Convertir el formato "2026-09-22 15:48:18" a un formato que el Date de JS entienda ("2026/09/22 15:48:18")
                     var fechaFormateadaJS = fechaStringDE.replace(/-/g, '/');
                     var fechaRegistroObj = new Date(fechaFormateadaJS);
@@ -85,7 +88,7 @@
     }
 </script>
 
-<!-- El contenido normal de tu CloudPage inicia aquí si la IP pasa la validación -->
+<!-- Si la IP pasa la validación se muestra: -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
