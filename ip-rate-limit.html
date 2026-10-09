@@ -15,11 +15,9 @@
         // Tiempo en milisegundos para comparar números, agrego 3h para pasar de GTM-6 (SFMC) a GTM-3
         var timestampLimite = d.getTime()
 
-        // --- IMPRESIÓN POR CONSOLA DE LA CLOUDPAGE (HTML Comentarios) ---
         Write("<!-- ipActual: " + String(ipActual) + " -->\n");
         Write("<!-- Fecha limite objeto: " + d.toString() + " -->\n");
         Write("<!-- TimestampLimite: " + String(timestampLimite) + " -->\n");
-        // -----------------------------------------------------------------
 
         var prox = new Script.Util.WSProxy();
 
@@ -91,7 +89,6 @@
         }
 
     } catch (ex) {
-        // En producción se puede dejar vacío
         // Write("<!-- Error detectado: " + Stringify(ex) + " -->");
     }
 </script>

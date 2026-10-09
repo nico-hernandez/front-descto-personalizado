@@ -9,6 +9,7 @@
   SET @DE_TOKEN_STORE = "TokenLocal"
   SET @DE_PARAMS = "ParametrosLanding"
   SET @DE_LOG = "RequestsLog"
+  SET @DE_LOG_EKEY = "RequestsLogExternalKey"
 
   /* ==================================================== */
   /* 2. Parametros SiteKey, SecretKey MaxImpressions         */
@@ -103,9 +104,105 @@
   Variable.SetValue("@clientIp", clientIp);
 </script>
 
+<script runat="server">
+  /* ===================================================== */
+  /* 5. Verifica IP Rate Limit contra consultas anteriores */
+  /* ===================================================== */   
+  var limiteConsultas = 3; 
+  var ventanaMinutos = 2;
+  var deCustomerKey = "RequestsLogExternalKey"; // Reemplaza con tu External Key
+
+  try {
+      // 1. Leer la IP de forma directa y exclusiva
+      var ipActual = Platform.Request.ClientIP();
+
+      // 2. Calcular el límite de tiempo del último minuto en milisegundos (aplicando el ajuste de +3 horas)
+      var d = new Date();
+      d.setMinutes(d.getMinutes() - ventanaMinutos); 
+      // Tiempo en milisegundos para comparar números, agrego 3h para pasar de GTM-6 (SFMC) a GTM-3
+      var timestampLimite = d.getTime()
+
+      Write("<!-- ipActual: " + String(ipActual) + " -->\n");
+      Write("<!-- Fecha limite objeto: " + d.toString() + " -->\n");
+      Write("<!-- TimestampLimite: " + String(timestampLimite) + " -->\n");
+
+      var prox = new Script.Util.WSProxy();
+
+      // 3. Filtrar EN LA BASE DE DATOS únicamente por la IP (Operador de coincidencia exacta: 100% seguro)
+      var filter = {
+          Property: "ipCliente",
+          SimpleOperator: "equals",
+          Value: ipActual
+      };
+
+      // Traemos fechaConsulta para procesarla en el servidor
+      var cols = ["requestId", "fechaConsulta"];
+      var req = prox.retrieve("DataExtensionObject[" + deCustomerKey + "]", cols, filter);
+
+      var totalConsultasEnUltimoMinuto = 0;
+      Write("<!-- totalConsultasEnUltimoMinuto: " + String("hello") + " -->\n");
+      Write("<!-- reqResults: " + Stringify(req.Results) + " -->\n");
+
+      if (req != null && req.Results != null) {
+          var registros = req.Results;
+          Write("<!-- registros: " + String("hello") + " -->\n");
+
+          // 4. Recorrer los registros de la IP y validar la fecha con JavaScript nativo
+          for (var i = 0; i < registros.length; i++) {
+              var propiedades = registros[i].Properties;
+              var fechaStringDE = "";
+
+              // Extraer el valor de fechaConsulta del registro
+              for (var j = 0; j < propiedades.length; j++) {
+                  if (propiedades[j].Name == "fechaConsulta") {
+                      fechaStringDE = propiedades[j].Value;
+                      break;
+                  }
+              }
+
+              if (fechaStringDE) {
+                  
+                  // Convertir el formato "2026-09-22 15:48:18" a un formato que el Date de JS entienda ("2026/09/22 15:48:18")
+                  var fechaFormateadaJS = fechaStringDE.replace(/-/g, '/');
+                  var fechaRegistroObj = new Date(fechaFormateadaJS); // asume GTM-6 pero debiese ser GTM-3
+                  var fechaUnix = fechaRegistroObj.getTime() - 3600000*3;
+                  var fechaOk = new Date(fechaUnix);
+                  Write("<!-- fechaFormateadaJS: " + fechaFormateadaJS + " -->\n");
+                  Write("<!-- fechaRegistroObj: " + fechaRegistroObj.toString() + " -->\n");
+                  Write("<!-- unix: " + String(fechaRegistroObj.getTime()) + " -->\n"); //Unix siempre se muestra igual, incluso restando.
+                  Write("<!-- fechaOk: " + fechaOk.toString() + " -->\n");
+                  
+                  // Comparación numérica de timestamps (100% precisa)
+                  if (fechaOk.getTime() >= timestampLimite) {
+                      totalConsultasEnUltimoMinuto++;
+                  }
+              }
+          }
+      }
+
+      Write("<!-- Inicio ventana: " + d.toString() + " -->\n");
+      Write("<!-- Duracion ventana (min): " + String(ventanaMinutos) + " -->\n");
+      Write("<!-- Total consultas en ventana: " + totalConsultasEnUltimoMinuto + " -->\n");
+
+      // 5. Validar si excede el límite y aplicar la denegación
+      if (totalConsultasEnUltimoMinuto > limiteConsultas) {
+          
+          Platform.Response.SetResponseHeader("Status", "429 Too Many Requests");
+          
+          Write("<h3>Acceso denegado temporalmente.</h3>");
+          Write("<p>Has realizado demasiadas solicitudes en el último minuto desde la IP: <strong>" + ipActual + "</strong>.</p>");
+          
+          Platform.Response.End();
+      }
+
+  } catch (ex) {
+      // Write("<!-- Error detectado: " + Stringify(ex) + " -->");
+  }
+</script>
+
 %%[
   /* ==================================================== */
-  /* 5. Validaciones para desplegar el cupon al cliente   */
+  /* 6. Validaciones para desplegar el cupon al cliente   */
   /* ==================================================== */
 
   /* Validar que proviene de local piloto */
@@ -148,7 +245,7 @@
 
 %%[
   /* ==================================================== */
-  /* 6. Registrar en en Log de Requests                   */
+  /* 7. Registrar en en Log de Requests                   */
   /* ==================================================== */
   IF NOT EMPTY(@rut) AND NOT EMPTY(@token) THEN
     SET @requestId = GUID()
