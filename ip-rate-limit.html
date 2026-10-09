@@ -1,0 +1,84 @@
+<script runat="server">
+    Platform.Load("Core", "1.1.1");
+
+    // 1. Configuración de parámetros de control
+    var limiteConsultas = 30; 
+    var deCustomerKey = "TU_EXTERNAL_KEY_DE_LA_DATA_EXTENSION"; // Reemplaza con tu External Key
+
+    try {
+        // 2. Leer la IP del cliente usando los encabezados del servidor en SSJS
+        var ipActual = Platform.Request.GetRequestHeader("X-Forwarded-For");
+        
+        // Si pasa por múltiples proxies, X-Forwarded-For devuelve una lista. Tomamos la primera IP.
+        if (ipActual && ipActual.indexOf(',') !== -1) {
+            ipActual = ipActual.split(',')[0].trim();
+        }
+
+        // Si el encabezado anterior está vacío, usamos la dirección remota estándar
+        if (!ipActual) {
+            ipActual = Platform.Request.ClientIP();
+        }
+
+        // 3. Calcular la fecha y hora de hace exactamente 1 minuto en formato ISO
+        var unMinutoAtras = new Date();
+        unMinutoAtras.setMinutes(unMinutoAtras.getMinutes() - 1);
+        var fechaFiltro = unMinutoAtras.toISOString();
+
+        var prox = new Script.Util.WSProxy();
+
+        // 4. Construir el filtro compuesto para la base de datos
+        var filter = {
+            LeftOperand: {
+                Property: "ipCliente",
+                SimpleOperator: "equals",
+                Value: ipActual
+            },
+            LogicalOperator: "AND",
+            RightOperand: {
+                Property: "fechaConsulta",
+                SimpleOperator: "greaterThanOrEqual",
+                Value: fechaFiltro
+            }
+        };
+
+        // Solicitar únicamente el campo requestId para optimizar la velocidad
+        var cols = ["requestId"];
+        var req = prox.retrieve("DataExtensionObject[" + deCustomerKey + "]", cols, filter);
+
+        var totalConsultas = 0;
+        if (req != null && req.Results != null) {
+            totalConsultas = req.Results.length;
+        }
+
+        // 5. Validar si excede el límite y aplicar la denegación en SSJS
+        if (totalConsultas > limiteConsultas) {
+            
+            // Cambiamos el estado HTTP a 429 (Too Many Requests) para indicar el bloqueo
+            Platform.Response.SetResponseHeader("Status", "429 Too Many Requests");
+            
+            Write("<h3>Acceso denegado temporalmente.</h3>");
+            Write("<p>Has realizado demasiadas solicitudes en el último minuto desde la IP: <strong>" + ipActual + "</strong>.</p>");
+            Write("<p>Por favor, espera un momento antes de volver a intentarlo.</p>");
+            
+            // Frena inmediatamente el procesamiento del resto del HTML de la CloudPage
+            Platform.Response.End();
+        }
+
+    } catch (ex) {
+        // En producción se deja vacío para que fallos de API no rompan la experiencia de navegación legítima
+        // Write("Error: " + Stringify(ex));
+    }
+</script>
+
+<!-- El contenido normal de tu CloudPage inicia aquí si la IP pasa la validación -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenido</title>
+</head>
+<body>
+    <h1>Contenido seguro de la CloudPage</h1>
+    <p>Tu consulta ha sido verificada con éxito.</p>
+</body>
+</html>
