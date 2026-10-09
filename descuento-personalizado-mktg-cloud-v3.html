@@ -18,7 +18,7 @@
   SET @row = Row(@rows, 1)
   SET @PUBLIC_SITE_KEY = Field(@row, "publicSiteKey")
   SET @SECRET_KEY = Field(@row, "privateSecretKey")
-  SET @MAX_IMPRESSIONS = 1000/*Field(@row, "maxImpressions")*/
+  SET @MAX_IMPRESSIONS = Field(@row, "maxImpressions")
 
   /* ==================================================== */
   /* 3. Extraer parametros del formulario y desde la URL  */
@@ -170,7 +170,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Descuento Personalizado</title>
+  <title>%%=v(@maxImpressions)=%% Descuento Personalizado</title>
   <!-- Turnstile Captcha - Firtst Preconnet link then script -->
   <link rel="preconnect" href="https://challenges.cloudflare.com" />
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
